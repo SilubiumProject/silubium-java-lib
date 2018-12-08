@@ -4,6 +4,16 @@
 
 ## dependency silubium-core    for [Silubium Core](https://github.com/SilubiumProject/silubium-java-lib/tree/master/silubium-core).
 
+
+### 初始化信息
+
+    static {
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        CurrentNetParams.setDefault_confirm(6);
+        CurrentNetParams.setUseMainNet(false);
+        CurrentNetParams.setBaseUrl("http://47.107.38.202:6910");
+    }
+###使用示例
     /**
      * 测试获取slu余额
      * @author shenzucai
@@ -311,7 +321,8 @@
         Address address = Address.fromBase58(CurrentNetParams.getNetParams(), "SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm");
         System.out.println(Hex.toHexString(address.getHash160()));
     }
-
+    
+###生成地址，采用[bip44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki).
 
     @Test
     public void testbip44EthereumEcKey() throws MnemonicException.MnemonicLengthException, ValidationException {
