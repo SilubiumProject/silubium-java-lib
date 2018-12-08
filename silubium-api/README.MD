@@ -1,8 +1,8 @@
-# silubium-api  [Silubium API](http://172.16.0.99/szc/silubium-api).
+# Silubium API
 
-## dependency silubium-crypto   for [Silubium Crypto](http://172.16.0.99/szc/silubium-crypto).
+## dependency silubium-crypto   for [Silubium Crypto](https://github.com/SilubiumProject/silubium-java-lib/tree/master/silubium-crypto).
 
-## dependency silubium-core    for [Silubium Core](http://172.16.0.99/szc/silubium-core).
+## dependency silubium-core    for [Silubium Core](https://github.com/SilubiumProject/silubium-java-lib/tree/master/silubium-core).
 
     /**
      * 测试获取slu余额
