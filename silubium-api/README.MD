@@ -1,4 +1,4 @@
-# silubium-api  [Silubium API](http://172.16.0.99/szc/silubium-api).
+# Silubium API
 
 ## dependency silubium-crypto   for [Silubium Crypto](https://github.com/SilubiumProject/silubium-java-lib/tree/master/silubium-crypto).
 
