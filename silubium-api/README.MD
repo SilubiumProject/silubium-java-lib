@@ -13,7 +13,9 @@
         CurrentNetParams.setUseMainNet(false);
         CurrentNetParams.setBaseUrl("http://47.107.38.202:6910");
     }
+    
 ###使用示例
+
     /**
      * 测试获取slu余额
      * @author shenzucai
@@ -322,7 +324,7 @@
         System.out.println(Hex.toHexString(address.getHash160()));
     }
     
-###生成地址，采用[bip44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki).
+###生成地址，采用[BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki).标准协议
 
     @Test
     public void testbip44EthereumEcKey() throws MnemonicException.MnemonicLengthException, ValidationException {
