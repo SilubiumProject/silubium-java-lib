@@ -287,7 +287,7 @@ public class TransactionUtil {
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
 
-            inputParameters.add(new org.web3j.abi.datatypes.Address(AddressUtil.SLUtoHash160(fromaddress)));
+            inputParameters.add(new org.web3j.abi.datatypes.Address(AddressUtil.SLUtoHash160(address)));
 
             inputParameters.add(new Uint256(amount.multiply(
                     new BigDecimal(
