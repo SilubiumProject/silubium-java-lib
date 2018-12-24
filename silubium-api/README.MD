@@ -1,20 +1,8 @@
-# Silubium API
+# silubium-api  [Silubium API](http://172.16.0.99/szc/silubium-api).
 
-## dependency silubium-crypto   for [Silubium Crypto](https://github.com/SilubiumProject/silubium-java-lib/tree/master/silubium-crypto).
+## dependency silubium-crypto   for [Silubium Crypto](http://172.16.0.99/szc/silubium-crypto).
 
-## dependency silubium-core    for [Silubium Core](https://github.com/SilubiumProject/silubium-java-lib/tree/master/silubium-core).
-
-
-### 初始化信息
-
-    static {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        CurrentNetParams.setDefault_confirm(6);
-        CurrentNetParams.setUseMainNet(false);
-        CurrentNetParams.setBaseUrl("http://47.107.38.202:6910");
-    }
-    
-### 使用示例
+## dependency silubium-core    for [Silubium Core](http://172.16.0.99/szc/silubium-core).
 
     /**
      * 测试获取slu余额
@@ -323,12 +311,7 @@
         Address address = Address.fromBase58(CurrentNetParams.getNetParams(), "SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm");
         System.out.println(Hex.toHexString(address.getHash160()));
     }
-    
-### 生成地址
 
-采用[BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki).标准协议
-
-[BIP44 LIST](https://github.com/satoshilabs/slips/blob/master/slip-0044.md)
 
     @Test
     public void testbip44EthereumEcKey() throws MnemonicException.MnemonicLengthException, ValidationException {

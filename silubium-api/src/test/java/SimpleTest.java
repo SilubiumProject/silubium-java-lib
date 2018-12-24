@@ -1,4 +1,5 @@
 import com.google.gson.reflect.TypeToken;
+import com.spark.bc.wallet.api.entity.TransactionCheck;
 import com.spark.bc.wallet.api.entity.slu.Balance;
 import com.spark.bc.wallet.api.entity.slu.SendRawTransactionRequest;
 import com.spark.bc.wallet.api.entity.slu.SendResult;
@@ -30,10 +31,18 @@ import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.generated.Uint256;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.security.Security;
 import java.util.*;
 
 public class SimpleTest {
 
+
+    static {
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        CurrentNetParams.setDefault_confirm(0);
+        CurrentNetParams.setUseMainNet(false);
+        CurrentNetParams.setBaseUrl("http://172.16.0.90:3001");
+    }
     /**
      * 测试获取slu余额
      * @author shenzucai
@@ -127,7 +136,7 @@ public class SimpleTest {
             Set<String> toAddresses = new HashSet<>();
             toAddresses.add("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm");
             List<BigDecimal> bigDecimals = new ArrayList<>();
-            bigDecimals.add(new BigDecimal("9125437.83989612"));
+            bigDecimals.add(new BigDecimal("1"));
             // Map<String, String> <=> Map<address, privateKey>
             Map<String, String> map = new HashMap();
             map.put("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm","cRAcYoB4RgbpyEkPEaxqs4C4y63b3MMXfw34boDVggfEHP9o1qct");
@@ -135,7 +144,8 @@ public class SimpleTest {
             //map.put("SLSS9M2SNQB3FywcpRjCcQszpxKKdwPrddmS","cT7Ahj7uKNZv67JftAju3iUZUNUvE3UXxtF7Xq3QamE5UpvGQqXy");
             //map.put("SLSgJKZhg6isMBBUZnjLLEYreFRfuhchunXs", "cRpYDyRsa9n2rYr3RMZ9fo1Du6JdXtbmszVAg7ytmLzJCAAqbuZf");
             try {
-                sendRawTransactionRequest.setRawtx(TransactionUtil.createTx(map, toAddresses, bigDecimals, "0.0001",BigDecimal.ZERO));
+                TransactionCheck transactionCheck = TransactionUtil.createTx(map, toAddresses, bigDecimals, "0.0001",BigDecimal.ZERO,null);
+                sendRawTransactionRequest.setRawtx(transactionCheck.getTransactionBytes());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -159,18 +169,19 @@ public class SimpleTest {
         try {
             SendRawTransactionRequest sendRawTransactionRequest = new SendRawTransactionRequest();
             sendRawTransactionRequest.setAllowAbsurdFees(true);
-            String toAddress = "SLSQWxnqf7fZ7ZPYYYE1Q9a7DQvU8NpnMK8o";
-            BigDecimal bigDecimal = new BigDecimal("100");
+            String toAddress = "SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm";
+            BigDecimal bigDecimal = new BigDecimal("1");
             // Map<String, String> <=> Map<address, privateKey>
             Map<String, String> map = new HashMap(1);
             String contractAddress = "1e88227d9f21cd26ee06f0f1473e119bbf392fc0";
             // 该map只能只能放一个
-            map.put("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm","cRAcYoB4RgbpyEkPEaxqs4C4y63b3MMXfw34boDVggfEHP9o1qct");
+            map.put("SLSRTN5pShZ4Z5Y6hTWBGNvBKgjCQ41NpZ3s","cMardidk9bWo9y7dUUGVtir9prsveAU7jqVR6WGz26JJsaooSLEj");
             //map.put("SLSRi1eaWgiUBpcFvrnsRyamjPLnGamojXCz","cRjSXKEdjQhD1KBWUrShm5QGYNhE2jfwwBoRiw3iNKnPnGMaUiVc");
             //map.put("SLSS9M2SNQB3FywcpRjCcQszpxKKdwPrddmS","cT7Ahj7uKNZv67JftAju3iUZUNUvE3UXxtF7Xq3QamE5UpvGQqXy");
             //map.put("SLSgJKZhg6isMBBUZnjLLEYreFRfuhchunXs", "cRpYDyRsa9n2rYr3RMZ9fo1Du6JdXtbmszVAg7ytmLzJCAAqbuZf");
             try {
-                sendRawTransactionRequest.setRawtx(TransactionUtil.createSrc20Tx(map, contractAddress,toAddress, bigDecimal, "0.0001",new BigDecimal("0"),BigDecimal.ZERO));
+                TransactionCheck transactionCheck = TransactionUtil.createSrc20Tx(map, contractAddress,toAddress, bigDecimal, "0.001",new BigDecimal("0"),BigDecimal.ZERO,null);
+                sendRawTransactionRequest.setRawtx(transactionCheck.getTransactionBytes());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -218,7 +229,8 @@ public class SimpleTest {
             //map.put("SLSS9M2SNQB3FywcpRjCcQszpxKKdwPrddmS","cT7Ahj7uKNZv67JftAju3iUZUNUvE3UXxtF7Xq3QamE5UpvGQqXy");
             //map.put("SLSgJKZhg6isMBBUZnjLLEYreFRfuhchunXs", "cRpYDyRsa9n2rYr3RMZ9fo1Du6JdXtbmszVAg7ytmLzJCAAqbuZf");
             try {
-                sendRawTransactionRequest.setRawtx(TransactionUtil.createMultiSendSrc20Tx(map, toContractAddress,contractAddress, toAddresses,bigDecimals, "0.0001",new BigDecimal("0"),BigDecimal.ZERO));
+                TransactionCheck transactionCheck = TransactionUtil.createMultiSendSrc20Tx(map, toContractAddress,contractAddress, toAddresses,bigDecimals, "0.0001",new BigDecimal("0"),BigDecimal.ZERO,null);
+                sendRawTransactionRequest.setRawtx(transactionCheck.getTransactionBytes());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -252,7 +264,7 @@ public class SimpleTest {
             //map.put("SLSgJKZhg6isMBBUZnjLLEYreFRfuhchunXs", "cRpYDyRsa9n2rYr3RMZ9fo1Du6JdXtbmszVAg7ytmLzJCAAqbuZf");
             List<String> hexTransactions = null;
             try {
-                hexTransactions = TransactionUtil.createManyTx(map, toAddresses,BigDecimal.ZERO,10);
+                hexTransactions = TransactionUtil.createManyTx(map, toAddresses,BigDecimal.ZERO,10,null);
             } catch (Exception e) {
                 e.printStackTrace();
             }

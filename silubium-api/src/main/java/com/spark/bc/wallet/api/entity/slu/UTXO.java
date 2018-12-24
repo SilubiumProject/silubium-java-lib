@@ -1,9 +1,12 @@
 package com.spark.bc.wallet.api.entity.slu;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @author shenzucai
@@ -35,10 +38,37 @@ public class UTXO {
     private int height;
     private int confirmations;
 
+    @JsonIgnore
     public boolean isOutputAvailableToPay() {
         if (isStake) {
             return confirmations > 100;
         }
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        UTXO utxo = (UTXO) o;
+        if(Objects.equals(utxo.vout,this.vout) && StringUtils.equalsIgnoreCase(utxo.txid,this.txid)){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        result = 31 * result + (txid != null ? txid.hashCode() : 0);
+        result = 31 * result + vout;
+        return result;
     }
 }

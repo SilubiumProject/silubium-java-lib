@@ -1,5 +1,6 @@
 package com.spark.bc.wallet.api.util;
 
+import com.spark.bc.wallet.api.entity.TransactionCheck;
 import com.spark.bc.wallet.api.entity.slu.*;
 import com.spark.bc.wallet.api.entity.src20.CallResult;
 import com.spark.bc.wallet.api.entity.src20.Contract;
@@ -42,7 +43,7 @@ public class TransactionUtil {
      * @author shenzucai
      * @time 2018.12.05 10:56
      */
-    public static String createTx(final Map<String, String> froms, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal minUtxoAmount) throws Exception {
+    public static TransactionCheck createTx(final Map<String, String> froms, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal minUtxoAmount,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos) throws Exception {
         try {
             if (addresses == null || amountList == null || addresses.size() != amountList.size()) {
                 throw new Exception("输出地址个数和金额个数不匹配");
@@ -96,7 +97,7 @@ public class TransactionUtil {
             amount = amount.add(fee);
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
-            UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount);
+            UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> usefulUxtos = new ArrayList<>();
             for (com.spark.bc.wallet.api.entity.slu.UTXO unspentOutput : unspentOutputs) {
@@ -137,11 +138,14 @@ public class TransactionUtil {
             BigDecimal minimumFee = (FeeUtil.getEstimateFeePerKb(amount.doubleValue()).multiply(new BigDecimal(txSizeInkB)));
             // 最大交易手续费为0.5
             minimumFee = minimumFee.compareTo(new BigDecimal("0.5"))==1?new BigDecimal("0.5"):minimumFee;
-            if (minimumFee.doubleValue() > fee.doubleValue()) {
+            /*if (minimumFee.doubleValue() > fee.doubleValue()) {
                 throw new Exception("手续费不足");
-            }
+            }*/
 
-            return Hex.toHexString(bytes);
+            TransactionCheck transactionCheck = new TransactionCheck();
+            transactionCheck.setTransaction(transaction);
+            transactionCheck.setTransactionBytes(Hex.toHexString(bytes));
+            return transactionCheck;
         } catch (Exception e) {
             throw e;
         }
@@ -160,7 +164,7 @@ public class TransactionUtil {
      * @author shenzucai
      * @time 2018.12.05 10:56
      */
-    public static String createSrc20Tx(final Map<String, String> from, String contractAddress, String address, BigDecimal amount, final String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount, String decimals) throws Exception {
+    public static TransactionCheck createSrc20Tx(final Map<String, String> from, String contractAddress, String address, BigDecimal amount, final String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount, String decimals,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos) throws Exception {
         try {
             if (address == null || amount == null || from == null || feeString == null || from.size() < 1) {
                 throw new Exception("参数不能为空");
@@ -203,11 +207,11 @@ public class TransactionUtil {
                 throw new Exception("TOKEN余额不足");
             }
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
-            UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount);
+            UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
 
-            inputParameters.add(new org.web3j.abi.datatypes.Address(AddressUtil.SLUtoHash160(address)));
+            inputParameters.add(new org.web3j.abi.datatypes.Address(AddressUtil.SLUtoHash160(fromaddress)));
 
             inputParameters.add(new Uint256(amount.multiply(
                     new BigDecimal(
@@ -240,7 +244,7 @@ public class TransactionUtil {
      * @author shenzucai
      * @time 2018.12.05 10:56
      */
-    public static String createSrc20Tx(final Map<String, String> from, String contractAddress, String address, BigDecimal amount, final String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount) throws Exception {
+    public static TransactionCheck createSrc20Tx(final Map<String, String> from, String contractAddress, String address, BigDecimal amount, final String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos) throws Exception {
         try {
             if (address == null || amount == null || from == null || feeString == null || from.size() < 1) {
                 throw new Exception("参数不能为空");
@@ -283,7 +287,7 @@ public class TransactionUtil {
                 throw new Exception("TOKEN余额不足");
             }
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
-            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount);
+            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
 
@@ -323,7 +327,7 @@ public class TransactionUtil {
      * @author shenzucai
      * @time 2018.12.06 16:31
      */
-    public static String createSrc20MethodTx(final Map<String, String> from, String contractAddress, String data, String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount) throws Exception {
+    public static TransactionCheck createSrc20MethodTx(final Map<String, String> from, String contractAddress, String data, String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos) throws Exception {
         try {
             if (from == null || feeString == null || from.size() < 1) {
                 throw new Exception("参数不能为空");
@@ -350,7 +354,7 @@ public class TransactionUtil {
             }
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
-            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount);
+            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
             return ContractUtils.createTransactionHash(data, contractAddress, unspentOutputs, ecKeyList, 500000, 10, feeString, sluAmount);
         } catch (Exception e) {
             throw e;
@@ -373,7 +377,7 @@ public class TransactionUtil {
      * @author shenzucai
      * @time 2018.12.06 11:02
      */
-    public static String createMultiSendSrc20Tx(final Map<String, String> from, String toContractAddress, String contractAddress, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount) throws Exception {
+    public static TransactionCheck createMultiSendSrc20Tx(final Map<String, String> from, String toContractAddress, String contractAddress, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos) throws Exception {
         try {
 
             if (addresses == null || amountList == null || addresses.size() != amountList.size()) {
@@ -434,7 +438,7 @@ public class TransactionUtil {
                 throw new Exception("TOKEN 授信额度不足");
             }
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
-            UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount);
+            UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
             inputParameters.add(new org.web3j.abi.datatypes.Address(contractAddress));
@@ -486,7 +490,7 @@ public class TransactionUtil {
      * @author shenzucai
      * @time 2018.12.06 11:02
      */
-    public static String createMultiSendSrc20Tx(final Map<String, String> from, String toContractAddress, String contractAddress, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount, String decimals) throws Exception {
+    public static TransactionCheck createMultiSendSrc20Tx(final Map<String, String> from, String toContractAddress, String contractAddress, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal sluAmount, BigDecimal minUtxoAmount, String decimals,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos) throws Exception {
         try {
 
             if (addresses == null || amountList == null || addresses.size() != amountList.size()) {
@@ -546,7 +550,7 @@ public class TransactionUtil {
                 throw new Exception("TOKEN 授信额度不足");
             }
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
-            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount);
+            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
             inputParameters.add(new org.web3j.abi.datatypes.Address(contractAddress));
@@ -592,7 +596,7 @@ public class TransactionUtil {
      * @author shenzucai
      * @time 2018.12.05 10:56
      */
-    public static List<String> createManyTx(final Map<String, String> froms, final Set<String> addresses, BigDecimal minUtxoAmount, Integer size) throws Exception {
+    public static List<String> createManyTx(final Map<String, String> froms, final Set<String> addresses, BigDecimal minUtxoAmount, Integer size,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos) throws Exception {
         try {
 
             List<Address> toAddressList = new ArrayList<>();
@@ -626,7 +630,7 @@ public class TransactionUtil {
 
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
-            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount);
+            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
 
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> usefulUxtos = new ArrayList<>();
