@@ -21,8 +21,8 @@
     如果项目启动是报加密相关的错误，请下载jdk8专用的无限制策略文件[jce-policy](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)，然后到$JAVA_HOME\jre\lib\security目录下替换对应的jar包
     
 3. 正常启动项目后,可以参考[README.MD](https://github.com/SilubiumProject/silubium-java-lib/blob/master/silubium-api/README.MD)进行地址生成，slu转账，src20 合约转账等操作，一般步骤为：
-（1）为用户离线生成地址，SLU地址和SLU代币（如ET）地址可以相同；
-（2）用户充币
-（3）用户提币
+  （1）为用户离线生成地址，SLU地址和SLU代币（如ET）地址可以相同；
+  （2）用户充币；
+  （3）用户提币；
 
 4. 如有疑问可在[issue](https://github.com/SilubiumProject/silubium-java-lib/issues)中进行反馈
