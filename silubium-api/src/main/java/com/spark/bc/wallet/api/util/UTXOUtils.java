@@ -24,7 +24,7 @@ public class UTXOUtils {
      * @author shenzucai
      * @time 2018.12.05 12:57
      */
-    public static void getValidUTXODESCAmount(List<UTXO> utxos, BigDecimal amount) {
+    public static void getValidUTXODESCAmount(List<UTXO> utxos, BigDecimal amount,List<UTXO> usedUtxos) {
 
         for (Iterator<UTXO> iterator = utxos.iterator(); iterator.hasNext(); ) {
             UTXO unspentOutput = iterator.next();
@@ -40,12 +40,17 @@ public class UTXOUtils {
                 }
             }
         }
+        // 用于支持并发处理
+        if(usedUtxos != null && usedUtxos.size()>0){
+            utxos.removeAll(usedUtxos);
+        }
         Collections.sort(utxos, new Comparator<UTXO>() {
             @Override
             public int compare(UTXO unspentOutput, UTXO t1) {
                 return unspentOutput.getAmount().doubleValue() < t1.getAmount().doubleValue() ? 1 : unspentOutput.getAmount().doubleValue() > t1.getAmount().doubleValue() ? -1 : 0;
             }
         });
+
 
     }
 
@@ -58,7 +63,7 @@ public class UTXOUtils {
      * @author shenzucai
      * @time 2018.12.05 12:57
      */
-    public static void getValidUTXO(List<UTXO> utxos, BigDecimal amount) {
+    public static void getValidUTXO(List<UTXO> utxos, BigDecimal amount,List<UTXO> usedUtxos) {
 
         for (Iterator<UTXO> iterator = utxos.iterator(); iterator.hasNext(); ) {
             UTXO unspentOutput = iterator.next();
@@ -73,6 +78,10 @@ public class UTXOUtils {
                     }
                 }
             }
+        }
+        // 用于支持并发处理
+        if(usedUtxos != null && usedUtxos.size()>0){
+            utxos.removeAll(usedUtxos);
         }
         Collections.sort(utxos, new Comparator<UTXO>() {
             @Override

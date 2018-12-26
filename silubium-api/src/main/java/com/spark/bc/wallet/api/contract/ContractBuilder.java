@@ -1,4 +1,5 @@
 package com.spark.bc.wallet.api.contract;
+import com.spark.bc.wallet.api.entity.TransactionCheck;
 import com.spark.bc.wallet.api.entity.slu.UTXO;
 import com.spark.bc.wallet.api.util.CurrentNetParams;
 import org.bitcoinj.core.*;
@@ -111,7 +112,7 @@ public class ContractBuilder {
         return new Script(program);
     }
 
-    public String createTransactionHash(Script script, List<UTXO> unspentOutputs,List<ECKey> ecKeys, int gasLimit, int gasPrice, BigDecimal feePerKb, String feeString, String sendToContractString) throws Exception {
+    public TransactionCheck createTransactionHash(Script script, List<UTXO> unspentOutputs,List<ECKey> ecKeys, int gasLimit, int gasPrice, BigDecimal feePerKb, String feeString, String sendToContractString) throws Exception {
         Transaction transaction = new Transaction(CurrentNetParams.getNetParams());
 
         BigDecimal fee = new BigDecimal(feeString);
@@ -174,7 +175,10 @@ public class ContractBuilder {
             throw new Exception("手续费不足");
         }
 
-        return Hex.toHexString(bytes);
+        TransactionCheck transactionCheck = new TransactionCheck();
+        transactionCheck.setTransaction(transaction);
+        transactionCheck.setTransactionBytes(Hex.toHexString(bytes));
+        return transactionCheck;
     }
 
     public TransactionHashWithSender createTransactionHashForCreateContract(Script script, List<UTXO> unspentOutputs,List<ECKey> ecKeys, int gasLimit, int gasPrice, BigDecimal feePerKb, String feeString) throws Exception {
@@ -230,6 +234,10 @@ public class ContractBuilder {
         if (minimumFee.doubleValue() > fee.doubleValue()) {
             throw new Exception("手续费不足");
         }
-        return new TransactionHashWithSender(Hex.toHexString(bytes), transaction.getInputs().get(0).getFromAddress().toString());
+
+        TransactionCheck transactionCheck = new TransactionCheck();
+        transactionCheck.setTransaction(transaction);
+        transactionCheck.setTransactionBytes(Hex.toHexString(bytes));
+        return new TransactionHashWithSender(transactionCheck.getTransactionBytes(), transaction.getInputs().get(0).getFromAddress().toString(),transactionCheck);
     }
 }

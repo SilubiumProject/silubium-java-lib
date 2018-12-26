@@ -10,7 +10,7 @@ public class CurrentNetParams {
 
     private static Boolean USE_MAIN_NET = false;
 
-    private static String baseUrl = "http://172.16.0.90:3001";
+    private static String baseUrl = "http://47.107.38.202:6910";
 
     private static Integer default_confirm = 6;
 
