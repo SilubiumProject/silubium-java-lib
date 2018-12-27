@@ -13,6 +13,7 @@ import javax.net.ssl.X509TrustManager;
 
 import com.spark.bc.wallet.api.exception.ApiError;
 import com.spark.bc.wallet.api.exception.ApiException;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;

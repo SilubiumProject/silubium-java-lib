@@ -61,13 +61,13 @@ public class TransactionUtil {
                 for (String address : addresses) {
                     toAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
                 }
-                for (String address : froms.keySet()) {
-                    fromAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
-                    ecKeyList.add(ECKeyUtils.fromPrivateKey(froms.get(address)));
+                for (Map.Entry<String,String> address : froms.entrySet()) {
+                    fromAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address.getKey()));
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(address.getValue()));
                     if (StringUtils.isEmpty(fromAddressStr.toString())) {
-                        fromAddressStr.append(address);
+                        fromAddressStr.append(address.getKey());
                     } else {
-                        fromAddressStr.append("," + address);
+                        fromAddressStr.append("," + address.getKey());
                     }
                 }
             } catch (AddressFormatException a) {
@@ -97,8 +97,10 @@ public class TransactionUtil {
             amount = amount.add(fee);
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            if(unspentOutputs == null || unspentOutputs.size() == 0){
+                throw new Exception("slu可用余额不足");
+            }
             UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount,usedUtxos);
-
             List<com.spark.bc.wallet.api.entity.slu.UTXO> usefulUxtos = new ArrayList<>();
             for (com.spark.bc.wallet.api.entity.slu.UTXO unspentOutput : unspentOutputs) {
                 overFlow = overFlow.add(unspentOutput.getAmount());
@@ -135,9 +137,10 @@ public class TransactionUtil {
             transaction.setPurpose(Transaction.Purpose.USER_PAYMENT);
             byte[] bytes = transaction.unsafeBitcoinSerialize();
             int txSizeInkB = (int) Math.ceil(bytes.length / 1024.);
-            BigDecimal minimumFee = (FeeUtil.getEstimateFeePerKb(amount.doubleValue()).multiply(new BigDecimal(txSizeInkB)));
-            // 最大交易手续费为0.5
-            minimumFee = minimumFee.compareTo(new BigDecimal("0.5"))==1?new BigDecimal("0.5"):minimumFee;
+             BigDecimal minimumFee = (FeeUtil.getEstimateFeePerKb(amount.doubleValue()).multiply(new BigDecimal(txSizeInkB)));
+            logger.info("推荐最小手续费为 {}",minimumFee);
+             // 最大交易手续费为0.5
+            // minimumFee = minimumFee.compareTo(new BigDecimal("0.5"))==1?new BigDecimal("0.5"):minimumFee;
             /*if (minimumFee.doubleValue() > fee.doubleValue()) {
                 throw new Exception("手续费不足");
             }*/
@@ -182,18 +185,18 @@ public class TransactionUtil {
                     Address.fromBase58(CurrentNetParams.getNetParams(), address);
                 } else {
                     if (address.length() == 40) {
-                        address = AddressUtil.Hash160toSlu(address);
+                        address = AddressUtil.hash160toSlu(address);
                         Address.fromBase58(CurrentNetParams.getNetParams(), address);
                     }
                 }
-                for (String fromAddress : from.keySet()) {
-                    fromaddress = fromAddress;
-                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress);
-                    ecKeyList.add(ECKeyUtils.fromPrivateKey(from.get(fromAddress)));
+                for (Map.Entry<String,String> fromAddress : from.entrySet()) {
+                    fromaddress = fromAddress.getKey();
+                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress.getKey());
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(fromAddress.getValue()));
                     if (StringUtils.isEmpty(fromAddressStr.toString())) {
-                        fromAddressStr.append(fromAddress);
+                        fromAddressStr.append(fromAddress.getKey());
                     } else {
-                        fromAddressStr.append("," + fromAddress);
+                        fromAddressStr.append("," + fromAddress.getKey());
                     }
                 }
             } catch (AddressFormatException a) {
@@ -207,6 +210,9 @@ public class TransactionUtil {
                 throw new Exception("TOKEN余额不足");
             }
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            if(unspentOutputs == null || unspentOutputs.size() == 0){
+                throw new Exception("slu可用余额不足");
+            }
             UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
@@ -262,18 +268,18 @@ public class TransactionUtil {
                     Address.fromBase58(CurrentNetParams.getNetParams(), address);
                 } else {
                     if (address.length() == 40) {
-                        address = AddressUtil.Hash160toSlu(address);
+                        address = AddressUtil.hash160toSlu(address);
                         Address.fromBase58(CurrentNetParams.getNetParams(), address);
                     }
                 }
-                for (String fromAddress : from.keySet()) {
-                    fromaddress = fromAddress;
-                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress);
-                    ecKeyList.add(ECKeyUtils.fromPrivateKey(from.get(fromAddress)));
+                for (Map.Entry<String,String> fromAddress : from.entrySet()) {
+                    fromaddress = fromAddress.getKey();
+                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress.getKey());
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(fromAddress.getValue()));
                     if (StringUtils.isEmpty(fromAddressStr.toString())) {
-                        fromAddressStr.append(fromAddress);
+                        fromAddressStr.append(fromAddress.getKey());
                     } else {
-                        fromAddressStr.append("," + fromAddress);
+                        fromAddressStr.append("," + fromAddress.getKey());
                     }
                 }
             } catch (AddressFormatException a) {
@@ -287,6 +293,9 @@ public class TransactionUtil {
                 throw new Exception("TOKEN余额不足");
             }
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            if(unspentOutputs == null || unspentOutputs.size() == 0){
+                throw new Exception("slu可用余额不足");
+            }
             UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
@@ -340,13 +349,13 @@ public class TransactionUtil {
             List<ECKey> ecKeyList = new ArrayList<>();
             StringBuffer fromAddressStr = new StringBuffer();
             try {
-                for (String fromAddress : from.keySet()) {
-                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress);
-                    ecKeyList.add(ECKeyUtils.fromPrivateKey(from.get(fromAddress)));
+                for (Map.Entry<String,String> fromAddress : from.entrySet()) {
+                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress.getKey());
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(fromAddress.getValue()));
                     if (StringUtils.isEmpty(fromAddressStr.toString())) {
-                        fromAddressStr.append(fromAddress);
+                        fromAddressStr.append(fromAddress.getKey());
                     } else {
-                        fromAddressStr.append("," + fromAddress);
+                        fromAddressStr.append("," + fromAddress.getKey());
                     }
                 }
             } catch (AddressFormatException a) {
@@ -354,6 +363,9 @@ public class TransactionUtil {
             }
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            if(unspentOutputs == null || unspentOutputs.size() == 0){
+                throw new Exception("slu可用余额不足");
+            }
             UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
             return ContractUtils.createTransactionHash(data, contractAddress, unspentOutputs, ecKeyList, 500000, 10, feeString, sluAmount);
         } catch (Exception e) {
@@ -403,21 +415,21 @@ public class TransactionUtil {
                         toAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
                     } else {
                         if (address.length() == 40) {
-                            address = AddressUtil.Hash160toSlu(address);
+                            address = AddressUtil.hash160toSlu(address);
                             toAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
                         }
                     }
 
 
                 }
-                for (String fromAddress : from.keySet()) {
-                    fromaddress = fromAddress;
-                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress);
-                    ecKeyList.add(ECKeyUtils.fromPrivateKey(from.get(fromAddress)));
+                for (Map.Entry<String,String> fromAddress : from.entrySet()) {
+                    fromaddress = fromAddress.getKey();
+                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress.getKey());
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(fromAddress.getValue()));
                     if (StringUtils.isEmpty(fromAddressStr.toString())) {
-                        fromAddressStr.append(fromAddress);
+                        fromAddressStr.append(fromAddress.getKey());
                     } else {
-                        fromAddressStr.append("," + fromAddress);
+                        fromAddressStr.append("," + fromAddress.getKey());
                     }
                 }
             } catch (AddressFormatException a) {
@@ -438,6 +450,9 @@ public class TransactionUtil {
                 throw new Exception("TOKEN 授信额度不足");
             }
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            if(unspentOutputs == null || unspentOutputs.size() == 0){
+                throw new Exception("slu可用余额不足");
+            }
             UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
@@ -516,21 +531,21 @@ public class TransactionUtil {
                         toAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
                     } else {
                         if (address.length() == 40) {
-                            address = AddressUtil.Hash160toSlu(address);
+                            address = AddressUtil.hash160toSlu(address);
                             toAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
                         }
                     }
 
 
                 }
-                for (String fromAddress : from.keySet()) {
-                    fromaddress = fromAddress;
-                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress);
-                    ecKeyList.add(ECKeyUtils.fromPrivateKey(from.get(fromAddress)));
+                for (Map.Entry<String,String> fromAddress : from.entrySet()) {
+                    fromaddress = fromAddress.getKey();
+                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress.getKey());
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(fromAddress.getValue()));
                     if (StringUtils.isEmpty(fromAddressStr.toString())) {
-                        fromAddressStr.append(fromAddress);
+                        fromAddressStr.append(fromAddress.getKey());
                     } else {
-                        fromAddressStr.append("," + fromAddress);
+                        fromAddressStr.append("," + fromAddress.getKey());
                     }
                 }
             } catch (AddressFormatException a) {
@@ -550,6 +565,9 @@ public class TransactionUtil {
                 throw new Exception("TOKEN 授信额度不足");
             }
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            if(unspentOutputs == null || unspentOutputs.size() == 0){
+                throw new Exception("slu可用余额不足");
+            }
             UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
 
             List<org.web3j.abi.datatypes.Type> inputParameters = new ArrayList<>();
@@ -608,13 +626,13 @@ public class TransactionUtil {
                 for (String address : addresses) {
                     toAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
                 }
-                for (String address : froms.keySet()) {
-                    fromAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
-                    ecKeyList.add(ECKeyUtils.fromPrivateKey(froms.get(address)));
+                for (Map.Entry<String,String> address : froms.entrySet()) {
+                    fromAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address.getKey()));
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(address.getValue()));
                     if (StringUtils.isEmpty(fromAddressStr.toString())) {
-                        fromAddressStr.append(address);
+                        fromAddressStr.append(address.getKey());
                     } else {
-                        fromAddressStr.append("," + address);
+                        fromAddressStr.append("," + address.getKey());
                     }
                 }
             } catch (AddressFormatException a) {
@@ -630,8 +648,10 @@ public class TransactionUtil {
 
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            if(unspentOutputs == null || unspentOutputs.size() == 0){
+                throw new Exception("slu可用余额不足");
+            }
             UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
-
 
             List<com.spark.bc.wallet.api.entity.slu.UTXO> usefulUxtos = new ArrayList<>();
             List<String> hexTxs = new ArrayList<>();
@@ -796,23 +816,24 @@ public class TransactionUtil {
         }
 
 
-        for (String inAddess : vin.keySet()) {
-            for (String outAddess : vout.keySet()) {
-                if (vout.containsKey(inAddess)) {
-                    vout.put(outAddess, vout.get(outAddess).subtract(vin.get(inAddess)));
+        for (Map.Entry<String,BigDecimal> inAddess : vin.entrySet()) {
+            for (Map.Entry<String,BigDecimal> outAddess : vout.entrySet()) {
+                if (vout.containsKey(inAddess.getKey())) {
+                    vout.put(outAddess.getKey(), outAddess.getValue().subtract(inAddess.getValue()));
                 }
             }
-            if (!vout.containsKey(inAddess)) {
-                vout.put(inAddess, BigDecimal.ZERO.subtract(vin.get(inAddess)));
+
+            if (!vout.containsKey(inAddess.getKey())) {
+                vout.put(inAddess.getKey(), BigDecimal.ZERO.subtract(inAddess.getValue()));
             }
 
         }
 
-        for (String addess : vout.keySet()) {
-            if (vout.get(addess).compareTo(amount) == 1) {
+        for (Map.Entry<String,BigDecimal> addess : vout.entrySet()) {
+            if (addess.getValue().compareTo(amount) == 1) {
                 SluTransferResult sluTransferResult = new SluTransferResult();
-                sluTransferResult.setAddress(addess);
-                sluTransferResult.setAmount(vout.get(addess));
+                sluTransferResult.setAddress(addess.getKey());
+                sluTransferResult.setAmount(addess.getValue());
                 sluTransferResults.add(sluTransferResult);
             }
         }
