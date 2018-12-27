@@ -3,7 +3,7 @@
 超级节点使用说明
 ## 交易所使用说明
 
-1. 该工具包运行环境最低为 jdk1.8 直接下载release jar包 [silubium-api](https://github.com/daring5920/silubium-java-lib/releases/download/V1.0.2/silubium-api.jar) 项目结构为pom结构
+1. 该工具包运行环境最低为 jdk1.8 直接下载release jar包 [silubium-api](https://github.com/SilubiumProject/silubium-java-lib/releases/download/V1.0.2/silubium-api.jar) 项目结构为pom结构
 
 2. 项目直接加载该jar包,然后在程序初始化的时候，进行相关初始操作
 
@@ -20,6 +20,12 @@
         
     如果项目启动是报加密相关的错误，请下载jdk8专用的无限制策略文件[jce-policy](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)，然后到$JAVA_HOME\jre\lib\security目录下替换对应的jar包
     
-3. 正常启动项目后,可以参考[README.MD](https://github.com/daring5920/silubium-java-lib/blob/master/silubium-api/README.MD)进行地址生成，slu转账，src20 合约转账等操作
+3. 正常启动项目后,可以参考[README.MD](https://github.com/SilubiumProject/silubium-java-lib/blob/master/silubium-api/README.MD)进行地址生成，slu转账，src20 合约转账等操作，一般步骤为：
 
-4. 如有疑问可在[issue](https://github.com/daring5920/silubium-java-lib/issues)中进行反馈
+  （1）为用户离线生成地址，SLU地址和SLU代币（如ET）地址可以相同；
+
+  （2）用户充币；
+
+  （3）用户提币；
+
+4. 如有疑问可在[issue](https://github.com/SilubiumProject/silubium-java-lib/issues)中进行反馈
