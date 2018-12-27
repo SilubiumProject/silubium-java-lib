@@ -3,7 +3,7 @@
 超级节点使用说明
 ## 交易所使用说明
 
-1. 该工具包运行环境最低为 jdk1.8 直接下载release jar包 [silubium-api](https://github.com/daring5920/silubium-java-lib/releases/tag/V1.0.3) 项目结构为pom结构
+1. 该工具包运行环境最低为 jdk1.8 直接下载release jar包 [silubium-api](https://github.com/SilubiumProject/silubium-java-lib/releases/tag/1.0.3) 项目结构为pom结构
 
 2. 项目直接加载该jar包,然后在程序初始化的时候，进行相关初始操作
 
@@ -236,7 +236,7 @@
             System.out.println(e.getError());
         }
     }
-    // 发送代币 ，可以解除合约进行批量发送代币详情见[silubium-api](https://github.com/daring5920/silubium-java-lib/blob/master/silubium-api/README.MD)
+    // 发送代币 ，可以解除合约进行批量发送代币详情见[silubium-api](https://github.com/SilubiumProject/silubium-java-lib/blob/master/silubium-api/README.MD)
     /**
      * 测试创建token交易
      * @author shenzucai
