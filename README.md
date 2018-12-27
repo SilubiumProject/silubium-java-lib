@@ -236,7 +236,7 @@
             System.out.println(e.getError());
         }
     }
-    // 发送代币 ，可以解除合约进行批量发送代币详情见[silubium-api](https://github.com/SilubiumProject/silubium-java-lib/blob/master/silubium-api/README.MD)
+    // 发送代币 ，可以借助合约进行批量发送代币详情见[silubium-api](https://github.com/SilubiumProject/silubium-java-lib/blob/master/silubium-api/README.MD)
     /**
      * 测试创建token交易
      * @author shenzucai
