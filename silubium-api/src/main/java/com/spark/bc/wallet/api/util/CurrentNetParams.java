@@ -8,7 +8,7 @@ public class CurrentNetParams {
 
     public  CurrentNetParams(){}
 
-    private static Boolean USE_MAIN_NET = false;
+    private static Boolean USE_MAIN_NET = true;
 
     private static String baseUrl = "http://47.107.38.202:6910";
 

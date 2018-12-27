@@ -56,7 +56,7 @@ public class SimpleTest {
         SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
         List<Balance> balances = Generator.executeSync(rpcService.getAddrBalance("SLSQWyo7Ceqgirz8W2dHS7aGcXfef74J68Wx"));
         List<Balance> balances1 = Generator.executeSync(rpcService.getAddrBalance("SLSQWyo7Ceqgirz8W2dHS7aGcXfef74J68Wx,SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm"));
-        System.out.println(balances.get(0).getBalance());
+        System.out.println(balances);
     }
 
     /**

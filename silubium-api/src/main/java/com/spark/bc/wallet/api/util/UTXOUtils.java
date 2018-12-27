@@ -47,7 +47,7 @@ public class UTXOUtils {
         Collections.sort(utxos, new Comparator<UTXO>() {
             @Override
             public int compare(UTXO unspentOutput, UTXO t1) {
-                return unspentOutput.getAmount().doubleValue() < t1.getAmount().doubleValue() ? 1 : unspentOutput.getAmount().doubleValue() > t1.getAmount().doubleValue() ? -1 : 0;
+                return unspentOutput.getAmount().compareTo(t1.getAmount()) == -1 ? 1 : unspentOutput.getAmount().compareTo(t1.getAmount()) == 1 ? -1 : 0;
             }
         });
 
@@ -86,7 +86,7 @@ public class UTXOUtils {
         Collections.sort(utxos, new Comparator<UTXO>() {
             @Override
             public int compare(UTXO unspentOutput, UTXO t1) {
-                return unspentOutput.getAmount().doubleValue() < t1.getAmount().doubleValue() ? -1 : unspentOutput.getAmount().doubleValue() > t1.getAmount().doubleValue() ? 1 : 0;
+                return unspentOutput.getAmount().compareTo(t1.getAmount()) == -1 ? -1 : unspentOutput.getAmount().compareTo(t1.getAmount()) == 1 ? 1 : 0;
             }
         });
 

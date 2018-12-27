@@ -50,10 +50,10 @@ public class AddressUtil {
     }
 
 
-    public static String Hash160toSlu(String hash160) throws DecoderException {
+    public static String hash160toSlu(String hash160) throws DecoderException {
         // // 第四步，取上一步结果，计算 RIPEMD-160 哈希值
         // // 010966776006953D5567439E5E39F86A0D273BEE
-        String address = "";
+        String address;
         // 第五步，取上一步结果，前面加入地址版本号（比特币主网版本号“0x00”）
         // 00010966776006953D5567439E5E39F86A0D273BEE
         // q 120 Q 58 o 115 U68
