@@ -817,20 +817,28 @@ public class TransactionUtil {
 
 
         for (Map.Entry<String,BigDecimal> inAddess : vin.entrySet()) {
-            for (Map.Entry<String,BigDecimal> outAddess : vout.entrySet()) {
-                if (vout.containsKey(inAddess.getKey())) {
-                    vout.put(outAddess.getKey(), outAddess.getValue().subtract(inAddess.getValue()));
-                }
-            }
 
             if (!vout.containsKey(inAddess.getKey())) {
                 vout.put(inAddess.getKey(), BigDecimal.ZERO.subtract(inAddess.getValue()));
+            }else{
+                for (Map.Entry<String,BigDecimal> outAddess : vout.entrySet()) {
+                    if (StringUtils.equalsIgnoreCase(inAddess.getKey(),outAddess.getKey())) {
+                        vout.put(outAddess.getKey(), outAddess.getValue().subtract(inAddess.getValue()));
+                    }
+                }
             }
 
         }
 
         for (Map.Entry<String,BigDecimal> addess : vout.entrySet()) {
-            if (addess.getValue().compareTo(amount) == 1) {
+            if(amount != null) {
+                if (addess.getValue().compareTo(amount) == 1) {
+                    SluTransferResult sluTransferResult = new SluTransferResult();
+                    sluTransferResult.setAddress(addess.getKey());
+                    sluTransferResult.setAmount(addess.getValue());
+                    sluTransferResults.add(sluTransferResult);
+                }
+            }else{
                 SluTransferResult sluTransferResult = new SluTransferResult();
                 sluTransferResult.setAddress(addess.getKey());
                 sluTransferResult.setAmount(addess.getValue());
