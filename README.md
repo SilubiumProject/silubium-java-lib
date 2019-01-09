@@ -27,7 +27,7 @@
         使用bip44协议进行离线地址生成,具体规则可参考bip44 silubium
         @Test
         public void testbip44EthereumEcKey() throws MnemonicException.MnemonicLengthException, ValidationException {
-
+                        
             List<String> mnemonicWordsInAList = new ArrayList<>();
             mnemonicWordsInAList.add("cupboard");
             mnemonicWordsInAList.add("shed");
@@ -133,22 +133,41 @@
                 "version": 2,
                 "locktime": 97602,
                 "receipt": [{
+                        /*块hash*/
                         "blockHash": "3b3a6aa8783c124678e5ddaec7fdfef307449cae67dc843683b5ec9a77cd965b",
+                        /*块高度*/
                         "blockNumber": 97604,
+                        /*交易hash*/
                         "transactionHash": "7a6ad2cbea4afa040da271f5017caf0055e5cd27bb23d12eae9c4188d3b84c25",
                         "transactionIndex": 4,
+                        /*调用合约的地址（提供燃料的地址）*/
                         "from": "SLURkEbmRxBHFz5P5AUvv9fsEqvX7jVYRHNz",
+                        /*合约地址*/
                         "to": "bcc131c009225b8992c4b3c4442322a9068527a6",
+                        /*gas limit 消耗步骤*/
                         "cumulativeGasUsed": 21456,
+                        /*同上*/
                         "gasUsed": 21456,
+                        /*合约地址*/
                         "contractAddress": "bcc131c009225b8992c4b3c4442322a9068527a6",
+                        /*合约执行状态*/
                         "excepted": "None",
                         "log": [{
+                                /*src20 token 地址*/
                                 "address": "bcc131c009225b8992c4b3c4442322a9068527a6",
-                                "topics": ["ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "SLURkEbmRxBHFz5P5AUvv9fsEqvX7jVYRHNz", "SLUP4tWemvXpFtAh7xULmo1vtHSZkamWnM7H"],
+                                "topics": [
+                                /*transfer 标识（转账标识）*/
+                                "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                                /*转出地址*/
+                                "SLURkEbmRxBHFz5P5AUvv9fsEqvX7jVYRHNz", 
+                                /*转入地址*/
+                                "SLUP4tWemvXpFtAh7xULmo1vtHSZkamWnM7H"
+                                ],
+                                /*转账金额，实际金额需要处理精度关系，同erc20代币 ，src20代币精度默认为8*/
                                 "data": "0000000000000000000000000000000000000000000000000000000b9554c180"
                         }]
                 }],
+                /*是否是src20transfer 交易*/
                 "issrc20Transfer": true,
                 "vin": [{
                         "txid": "0a391b7de04dc60a14fbdd0436528bc88e132cea1e7b542a064034ad3cedde11",
@@ -165,11 +184,13 @@
                         "doubleSpentTxID": null
                 }],
                 "vout": [{
+                        /*Exchange 可视为deposit金额*/
                         "value": "0.09980000",
                         "n": 0,
                         "scriptPubKey": {
                                 "hex": "76a91429453c1aba63c572fc08d985f54d5904a8bd4f9f88ac",
                                 "asm": "OP_DUP OP_HASH160 29453c1aba63c572fc08d985f54d5904a8bd4f9f OP_EQUALVERIFY OP_CHECKSIG",
+                                /*deposit address 到账地址*/
                                 "addresses": ["SLURkEbmRxBHFz5P5AUvv9fsEqvX7jVYRHNz"],
                                 "type": "pubkeyhash"
                         },
@@ -191,14 +212,20 @@
                 }],
                 "blockhash": "3b3a6aa8783c124678e5ddaec7fdfef307449cae67dc843683b5ec9a77cd965b",
                 "blockheight": 97604,
+                /*交易确认数*/
                 "confirmations": 6,
                 "time": 1545877616,
                 "blocktime": 1545877616,
+                /*交易总输出*/
                 "valueOut": 0.0998,
+                /*交易大小 byte*/
                 "size": 299,
+                /*交易总输入*/
                 "valueIn": 0.1499,
+                /*预扣手续费 实际手续费计算方式为 gasLimit*gasPrice*/
                 "fees": 0.0501
         }
+        
            
   （3）用户提币
         
@@ -215,14 +242,16 @@
         try {
             SendRawTransactionRequest sendRawTransactionRequest = new SendRawTransactionRequest();
             sendRawTransactionRequest.setAllowAbsurdFees(true);
+            /*接收地址*/
             Set<String> toAddresses = new HashSet<>();
             toAddresses.add("SLUjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm");
             List<BigDecimal> bigDecimals = new ArrayList<>();
+            /*每个接收地址的金额，需和接收地址匹配*/
             bigDecimals.add(new BigDecimal("1"));
             // Map<String, String> <=> Map<address, privateKey>
             Map<String, String> map = new HashMap();
             // map可以放多个输入
-            map.put("地址","私钥");
+            map.put("发送地址","私钥");
             try {
                 TransactionCheck transactionCheck = TransactionUtil.createTx(map, toAddresses, bigDecimals, "0.0001",BigDecimal.ZERO,null);
                 sendRawTransactionRequest.setRawtx(transactionCheck.getTransactionBytes());
