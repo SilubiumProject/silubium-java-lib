@@ -122,7 +122,7 @@ public class SimpleTest {
     public void testGetAddrUTXOs() throws UnsupportedEncodingException {
 
         SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
-        List<UTXO> utxos = Generator.executeSync(rpcService.getAddrUTXOs("SLUZgb6DTuyZDtzhMq28otomHnUfQt68mRcr",new BigDecimal("400000"),CurrentNetParams.getDefault_confirm()));
+        List<UTXO> utxos = Generator.executeSync(rpcService.getAddrUTXOs("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm",new BigDecimal("400000"),CurrentNetParams.getDefault_confirm()));
         // List<UTXO> utxos1 = Generator.executeSync(rpcService.getAddrUTXOs("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm,SLSQWyo7Ceqgirz8W2dHS7aGcXfef74J68Wx",null,CurrentNetParams.getDefault_confirm()));
         BigDecimal sum = new BigDecimal("0");
         for(UTXO utxo:utxos){
