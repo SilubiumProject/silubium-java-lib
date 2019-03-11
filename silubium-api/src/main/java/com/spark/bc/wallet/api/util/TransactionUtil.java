@@ -96,7 +96,7 @@ public class TransactionUtil {
             }
             amount = amount.add(fee);
 
-            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(),amount,CurrentNetParams.getDefault_confirm()));
             if(unspentOutputs == null || unspentOutputs.size() == 0){
                 throw new Exception("slu可用余额不足");
             }
@@ -209,7 +209,7 @@ public class TransactionUtil {
             if (amount.compareTo(balances.getBalances().get(0).getBalance()) == 1) {
                 throw new Exception("TOKEN余额不足");
             }
-            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(),new BigDecimal(feeString).add(new BigDecimal("0.05")),CurrentNetParams.getDefault_confirm()));
             if(unspentOutputs == null || unspentOutputs.size() == 0){
                 throw new Exception("slu可用余额不足");
             }
@@ -292,7 +292,7 @@ public class TransactionUtil {
             if (amount.compareTo(balances.getBalances().get(0).getBalance()) == 1) {
                 throw new Exception("TOKEN余额不足");
             }
-            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(),new BigDecimal(feeString).add(new BigDecimal("0.05")),CurrentNetParams.getDefault_confirm()));
             if(unspentOutputs == null || unspentOutputs.size() == 0){
                 throw new Exception("slu可用余额不足");
             }
@@ -362,7 +362,7 @@ public class TransactionUtil {
                 throw new Exception("地址不合法");
             }
 
-            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(),new BigDecimal(feeString).add(new BigDecimal("0.05")),CurrentNetParams.getDefault_confirm()));
             if(unspentOutputs == null || unspentOutputs.size() == 0){
                 throw new Exception("slu可用余额不足");
             }
@@ -449,7 +449,7 @@ public class TransactionUtil {
             if (amount.compareTo(allowance) == 1) {
                 throw new Exception("TOKEN 授信额度不足");
             }
-            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(),new BigDecimal(feeString).add(new BigDecimal("0.05")),CurrentNetParams.getDefault_confirm()));
             if(unspentOutputs == null || unspentOutputs.size() == 0){
                 throw new Exception("slu可用余额不足");
             }
@@ -564,7 +564,7 @@ public class TransactionUtil {
             if (amount.compareTo(allowance) == 1) {
                 throw new Exception("TOKEN 授信额度不足");
             }
-            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(),new BigDecimal(feeString).add(new BigDecimal("0.05")),CurrentNetParams.getDefault_confirm()));
             if(unspentOutputs == null || unspentOutputs.size() == 0){
                 throw new Exception("slu可用余额不足");
             }
@@ -647,7 +647,7 @@ public class TransactionUtil {
             BigDecimal overFlow = new BigDecimal("0.0");
 
 
-            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString()));
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(),null,CurrentNetParams.getDefault_confirm()));
             if(unspentOutputs == null || unspentOutputs.size() == 0){
                 throw new Exception("slu可用余额不足");
             }

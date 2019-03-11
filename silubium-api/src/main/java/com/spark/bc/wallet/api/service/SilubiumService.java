@@ -11,6 +11,7 @@ import com.spark.bc.wallet.api.entity.src20.SrcBalance;
 import retrofit2.Call;
 import retrofit2.http.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public interface SilubiumService {
     Call<SrcBalance> getAddrSrcBalance(@Path("contractAddress") String contractAddress,@Path("addrs") String addrs);
 
     @GET("/silubium-api/addrs/{addrs}/utxo")
-    Call<List<UTXO>> getAddrUTXOs(@Path("addrs") String addrs);
+    Call<List<UTXO>> getAddrUTXOs(@Path("addrs") String addrs,@Query("amount") BigDecimal amount,@Query("confirmations") Integer confirmations);
 
     @GET("/silubium-api/txs")
     Call<com.spark.bc.wallet.api.entity.slu.Transaction> listTransaction(@Query("block") String block,@Query("pageNum") Integer pageNum,@Query("pageLength") Integer pageLength);

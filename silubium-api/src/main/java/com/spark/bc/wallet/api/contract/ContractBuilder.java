@@ -171,6 +171,9 @@ public class ContractBuilder {
         int txSizeInkB = (int) Math.ceil(bytes.length / 1024.);
         BigDecimal minimumFee = (feePerKb.multiply(new BigDecimal(txSizeInkB)));
         logger.info("最小手续费 {}  transaction size kb {}", minimumFee.toString(), txSizeInkB);
+        if(minimumFee.compareTo(new BigDecimal("0.5")) == 1){
+            minimumFee = new BigDecimal("0.5");
+        }
         if (minimumFee.doubleValue() > fee.doubleValue()) {
             throw new Exception("手续费不足");
         }
