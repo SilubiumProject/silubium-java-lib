@@ -15,13 +15,13 @@
             // 交易确认数
             CurrentNetParams.setDefault_confirm(0);
             // 是否主链，默认true
-            CurrentNetParams.setUseMainNet(false);
+            CurrentNetParams.setUseMainNet(true);
             // 新增燃料价格
             CurrentNetParams.setGasPrice(10);
             // 新增燃料限制
             CurrentNetParams.setGasLimit(800000);
             // 接口主机地址和端口
-            CurrentNetParams.setBaseUrl("http://172.16.0.90:3001");
+            CurrentNetParams.setBaseUrl("https://sluapi.silubium.org/");
 
         }
 
