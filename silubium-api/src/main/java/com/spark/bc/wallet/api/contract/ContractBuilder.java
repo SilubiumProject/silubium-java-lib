@@ -1,5 +1,7 @@
 package com.spark.bc.wallet.api.contract;
+
 import com.spark.bc.wallet.api.entity.TransactionCheck;
+import com.spark.bc.wallet.api.entity.slu.SendGasResult;
 import com.spark.bc.wallet.api.entity.slu.UTXO;
 import com.spark.bc.wallet.api.util.CurrentNetParams;
 import org.bitcoinj.core.*;
@@ -15,7 +17,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ContractBuilder {
@@ -177,6 +180,90 @@ public class ContractBuilder {
         if (minimumFee.doubleValue() > fee.doubleValue()) {
             throw new Exception("手续费不足");
         }
+
+        TransactionCheck transactionCheck = new TransactionCheck();
+        transactionCheck.setTransaction(transaction);
+        transactionCheck.setTransactionBytes(Hex.toHexString(bytes));
+        return transactionCheck;
+    }
+
+    public TransactionCheck createNewTransactionHash(List<Script> scripts, List<UTXO> unspentOutputs, List<ECKey> ecKeys, int gasLimit, int gasPrice, BigDecimal feePerKb, String feeString, BigDecimal sluAmount, List<SendGasResult> sendGasList, List<Address> addresses)throws Exception {
+        Transaction transaction = new Transaction(CurrentNetParams.getNetParams());
+
+        BigDecimal fee = new BigDecimal(feeString).multiply(new BigDecimal(Math.ceil((sendGasList.size()+addresses.size()+unspentOutputs.size())/5.0))).setScale(8,BigDecimal.ROUND_DOWN);
+        if(fee.compareTo(BigDecimal.ONE) == 1){
+            fee = BigDecimal.ONE;
+        }
+        BigDecimal gasFee = (new BigDecimal(gasLimit)).multiply(new BigDecimal(gasPrice)).setScale(8,BigDecimal.ROUND_DOWN).divide(new BigDecimal(100000000), MathContext.DECIMAL128).setScale(8,BigDecimal.ROUND_DOWN).multiply(new BigDecimal(addresses.size())).setScale(8,BigDecimal.ROUND_DOWN);
+        BigDecimal totalAmount = fee.add(gasFee);
+
+        BigDecimal amountFromOutput = new BigDecimal("0.0");
+        BigDecimal overFlow = new BigDecimal("0.0");
+        BigDecimal bitcoin = new BigDecimal(100000000);
+
+        if(scripts!= null && scripts.size() > 0) {
+            scripts.forEach(script -> {
+                transaction.addOutput(Coin.ZERO, script);
+            });
+        }
+
+
+        for(SendGasResult transferResult:sendGasList){
+            if(transferResult != null && transferResult.getAmount().compareTo(BigDecimal.ZERO) == 1) {
+                transaction.addOutput(Coin.valueOf((long) ( bitcoin.multiply(transferResult.getAmount()).doubleValue())), transferResult.getAddress());
+                // totalAmount = totalAmount.add(amounts.get(i));
+            }
+        }
+
+        totalAmount = totalAmount.add(sluAmount);
+
+        for (UTXO unspentOutput : unspentOutputs) {
+            overFlow = overFlow.add(unspentOutput.getAmount());
+            if (overFlow.doubleValue() >= totalAmount.doubleValue()) {
+                break;
+            }
+        }
+        if (overFlow.doubleValue() < totalAmount.doubleValue()) {
+            throw new RuntimeException("You have insufficient funds for this transaction");
+        }
+        BigDecimal delivery = overFlow.subtract(totalAmount);
+
+        Address myAddress;
+        try {
+            myAddress = Address.fromBase58(CurrentNetParams.getNetParams(), unspentOutputs.get(0).getAddress());
+        } catch (AddressFormatException a) {
+            throw new Exception("地址错误");
+        }
+        if (delivery.doubleValue() != 0.0) {
+            transaction.addOutput(Coin.valueOf((long) (delivery.multiply(bitcoin).doubleValue())), myAddress);
+        }
+        for (UTXO unspentOutput : unspentOutputs) {
+            for (ECKey deterministicKey : ecKeys) {
+                if (deterministicKey.toAddress(CurrentNetParams.getNetParams()).toString().equals(unspentOutput.getAddress())) {
+                    Sha256Hash sha256Hash = Sha256Hash.wrap(Utils.parseAsHexOrBase58(unspentOutput.getTxid()));
+                    TransactionOutPoint outPoint = new TransactionOutPoint(CurrentNetParams.getNetParams(), unspentOutput.getVout(), sha256Hash);
+                    Script script2 = new Script(Utils.parseAsHexOrBase58(unspentOutput.getScriptPubKey()));
+                    transaction.addSignedInput(outPoint, script2, deterministicKey, Transaction.SigHash.ALL, true);
+                    amountFromOutput = amountFromOutput.add(unspentOutput.getAmount());
+                    break;
+                }
+            }
+            if (amountFromOutput.doubleValue() >= totalAmount.doubleValue()) {
+                break;
+            }
+        }
+        transaction.getConfidence(new Context(CurrentNetParams.getNetParams())).setSource(TransactionConfidence.Source.SELF);
+        transaction.setPurpose(Transaction.Purpose.USER_PAYMENT);
+        byte[] bytes = transaction.unsafeBitcoinSerialize();
+        int txSizeInkB = (int) Math.ceil(bytes.length / 1024.);
+        BigDecimal minimumFee = (feePerKb.multiply(new BigDecimal(txSizeInkB)));
+        logger.info("最小手续费 {}  transaction size kb {}", minimumFee.toString(), txSizeInkB);
+        if(minimumFee.compareTo(new BigDecimal("1")) == 1){
+            minimumFee = new BigDecimal("1");
+        }
+        // if (minimumFee.doubleValue() > fee.doubleValue()) {
+        //     throw new Exception("手续费不足");
+        // }
 
         TransactionCheck transactionCheck = new TransactionCheck();
         transactionCheck.setTransaction(transaction);

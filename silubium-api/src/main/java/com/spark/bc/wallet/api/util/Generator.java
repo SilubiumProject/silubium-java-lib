@@ -3,17 +3,8 @@ package com.spark.bc.wallet.api.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-
 import com.spark.bc.wallet.api.exception.ApiError;
 import com.spark.bc.wallet.api.exception.ApiException;
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.commons.lang3.StringUtils;
@@ -22,10 +13,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
@@ -111,7 +101,8 @@ public class Generator {
 					apiError = getApiError(response);
 				}catch (Exception e){
 					apiError = new ApiError();
-					apiError.setError(StringUtils.isEmpty(response.errorBody().string())?response.message():response.errorBody().string());
+					String error = response.errorBody().string();
+					apiError.setError(StringUtils.isEmpty(error)?response.message():error);
 				}finally {
 					throw new ApiException(apiError);
 				}

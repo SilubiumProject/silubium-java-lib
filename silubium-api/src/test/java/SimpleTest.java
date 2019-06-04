@@ -1,16 +1,14 @@
-import com.google.gson.reflect.TypeToken;
 import com.spark.bc.wallet.api.entity.TransactionCheck;
-import com.spark.bc.wallet.api.entity.slu.Balance;
-import com.spark.bc.wallet.api.entity.slu.SendRawTransactionRequest;
-import com.spark.bc.wallet.api.entity.slu.SendResult;
-import com.spark.bc.wallet.api.entity.slu.UTXO;
-import com.spark.bc.wallet.api.entity.slu.history.Transaction;
+import com.spark.bc.wallet.api.entity.slu.*;
 import com.spark.bc.wallet.api.entity.src20.CallResult;
 import com.spark.bc.wallet.api.entity.src20.Contract;
 import com.spark.bc.wallet.api.entity.src20.SrcBalance;
 import com.spark.bc.wallet.api.exception.ApiException;
 import com.spark.bc.wallet.api.service.SilubiumService;
-import com.spark.bc.wallet.api.util.*;
+import com.spark.bc.wallet.api.util.AddressUtil;
+import com.spark.bc.wallet.api.util.CurrentNetParams;
+import com.spark.bc.wallet.api.util.Generator;
+import com.spark.bc.wallet.api.util.TransactionUtil;
 import org.bitcoinj.core.Address;
 import org.bouncycastle.util.encoders.Hex;
 import org.jhblockchain.crypto.CoinTypes;
@@ -29,6 +27,7 @@ import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.generated.Uint256;
+
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.security.Security;
@@ -45,9 +44,9 @@ public class SimpleTest {
         // 是否主链，默认true
         CurrentNetParams.setUseMainNet(false);
         // 接口主机地址和端口
-        CurrentNetParams.setBaseUrl("https://sluapi2.silubium.org");
-    }
+        CurrentNetParams.setBaseUrl("http://172.16.0.90:3001");
 
+    }
 
     /**
      * 测试获取slu余额
@@ -59,10 +58,11 @@ public class SimpleTest {
     @Test
     public void testGetAddrBalance() throws UnsupportedEncodingException {
 
+
         SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
-        List<Balance> balances = Generator.executeSync(rpcService.getAddrBalance("SLUZgb6DTuyZDtzhMq28otomHnUfQt68mRcr"));
+        List<Balance> balances = Generator.executeSync(rpcService.getAddrBalance("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm"));
         //List<Balance> balances1 = Generator.executeSync(rpcService.getAddrBalance("SLSSFpE5Gbbg84v2FqFkZAasrmqfNNNZqvwr,SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm"));
-        System.out.println(balances.get(0).getBalance());
+        System.out.println(balances);
     }
 
     /**
@@ -76,7 +76,7 @@ public class SimpleTest {
     public void testListTransaction() throws UnsupportedEncodingException {
 
         SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
-        com.spark.bc.wallet.api.entity.slu.Transaction transaction = Generator.executeSync(rpcService.listTransaction("84553",1,10));
+        com.spark.bc.wallet.api.entity.slu.Transaction transaction = Generator.executeSync(rpcService.listTransaction("2000",0,10));
         System.out.println(transaction);
     }
 
@@ -91,7 +91,7 @@ public class SimpleTest {
     public void testGetTransaction() throws UnsupportedEncodingException {
 
         SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
-        Transaction transaction = Generator.executeSync(rpcService.getTransaction("99ef1b55b6a625e60677d71a6a15661c6992a021b3cd6e29e32ba935a6ff0522"));
+        com.spark.bc.wallet.api.entity.slu.history.Transaction  transaction = Generator.executeSync(rpcService.getTransaction("99ef1b55b6a625e60677d71a6a15661c6992a021b3cd6e29e32ba935a6ff0522"));
         System.out.println(transaction);
     }
 
@@ -107,7 +107,7 @@ public class SimpleTest {
 
         SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
         SrcBalance balances = Generator.executeSync(rpcService.getAddrSrcBalance("1e88227d9f21cd26ee06f0f1473e119bbf392fc0", "SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm"));
-        SrcBalance balances1 = Generator.executeSync(rpcService.getAddrSrcBalance("1e88227d9f21cd26ee06f0f1473e119bbf392fc0", "SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm,SLSQWyo7Ceqgirz8W2dHS7aGcXfef74J68Wx"));
+        SrcBalance balances1 = Generator.executeSync(rpcService.getAddrSrcBalance("1e88227d9f21cd26ee06f0f1473e119bbf392fc0", "SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm,SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm"));
         System.out.println(balances);
     }
 
@@ -122,7 +122,7 @@ public class SimpleTest {
     public void testGetAddrUTXOs() throws UnsupportedEncodingException {
 
         SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
-        List<UTXO> utxos = Generator.executeSync(rpcService.getAddrUTXOs("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm",new BigDecimal("400000"),CurrentNetParams.getDefault_confirm()));
+        List<UTXO> utxos = Generator.executeSync(rpcService.getAddrUTXOs("SLSNYr8T1dDFMCjJwYCKp5XAVNjpFNvUPqTo",new BigDecimal("0"),CurrentNetParams.getDefault_confirm()));
         // List<UTXO> utxos1 = Generator.executeSync(rpcService.getAddrUTXOs("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm,SLSQWyo7Ceqgirz8W2dHS7aGcXfef74J68Wx",null,CurrentNetParams.getDefault_confirm()));
         BigDecimal sum = new BigDecimal("0");
         for(UTXO utxo:utxos){
@@ -145,9 +145,9 @@ public class SimpleTest {
             SendRawTransactionRequest sendRawTransactionRequest = new SendRawTransactionRequest();
             sendRawTransactionRequest.setAllowAbsurdFees(true);
             Set<String> toAddresses = new HashSet<>();
-            toAddresses.add("SLSSFpE5Gbbg84v2FqFkZAasrmqfNNNZqvwr");
+            toAddresses.add("SLSPacBgLAM72rtF63YW3uCrXVCs3yshVikq");
             List<BigDecimal> bigDecimals = new ArrayList<>();
-            bigDecimals.add(new BigDecimal("9125437.83989612"));
+            bigDecimals.add(new BigDecimal("10"));
             // Map<String, String> <=> Map<address, privateKey>
             Map<String, String> map = new HashMap();
             map.put("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm","cRAcYoB4RgbpyEkPEaxqs4C4y63b3MMXfw34boDVggfEHP9o1qct");
@@ -155,7 +155,7 @@ public class SimpleTest {
             //map.put("SLSS9M2SNQB3FywcpRjCcQszpxKKdwPrddmS","cT7Ahj7uKNZv67JftAju3iUZUNUvE3UXxtF7Xq3QamE5UpvGQqXy");
             //map.put("SLSgJKZhg6isMBBUZnjLLEYreFRfuhchunXs", "cRpYDyRsa9n2rYr3RMZ9fo1Du6JdXtbmszVAg7ytmLzJCAAqbuZf");
             try {
-                sendRawTransactionRequest.setRawtx(TransactionUtil.createTx(map, toAddresses, bigDecimals, "0.0001",BigDecimal.ZERO,null).getTransactionBytes());
+                sendRawTransactionRequest.setRawtx(TransactionUtil.createTx(map, toAddresses, bigDecimals, "0.0001",BigDecimal.ZERO,null,"SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm").getTransactionBytes());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -163,6 +163,61 @@ public class SimpleTest {
             SendResult utxos = Generator.executeSync(rpcService.sendRawTransaction(sendRawTransactionRequest));
             System.out.println(utxos);
         }catch (ApiException e){
+            System.out.println(e.getError());
+        }
+    }
+
+    /**
+     * 测试创建token交易
+     *
+     * @param
+     * @return true
+     * @author shenzucai
+     * @time 2018.12.05 19:20
+     */
+    @Test
+    public void testCreateNewSrc20190514Tx() throws UnsupportedEncodingException {
+        try {
+            SendRawTransactionRequest sendRawTransactionRequest = new SendRawTransactionRequest();
+            sendRawTransactionRequest.setAllowAbsurdFees(true);
+
+            //接收地址
+            List<SluTransferResult> addresses = new ArrayList<>();
+
+            // 赠送手续费
+            List<SendGasResult> sendGasResults = new ArrayList<>();
+            sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "SLSSFpE5Gbbg84v2FqFkZAasrmqfNNNZqvwr"),new BigDecimal("10000")));
+            // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+            // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+            // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+            // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+            // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+
+            BigDecimal bigDecimal = new BigDecimal("10000");
+            addresses.add(new SluTransferResult("SLSSFpE5Gbbg84v2FqFkZAasrmqfNNNZqvwr",bigDecimal));
+            // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+            // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+            // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+            // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+            // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+            Map<String, String> map = new HashMap(1);
+            // 合约地址
+            String contractAddress = "1151b5d84e3d7e14c6115b2b6eac8d66d816672f";
+            // 该map只能只能放一个  发送地址和私钥
+            map.put("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm","cRAcYoB4RgbpyEkPEaxqs4C4y63b3MMXfw34boDVggfEHP9o1qct");
+
+            try {
+                // 构建交易
+                TransactionCheck transactionCheck = TransactionUtil.createNewTx(map, contractAddress, addresses, new BigDecimal("0.01").toPlainString(), sendGasResults, BigDecimal.ZERO, null);
+                sendRawTransactionRequest.setRawtx(transactionCheck.getTransactionBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
+            // 广播交易 返回交易hash
+            SendResult sendResult = Generator.executeSync(rpcService.sendRawTransaction(sendRawTransactionRequest));
+            System.out.println(sendResult.getTxid());
+        } catch (ApiException e) {
             System.out.println(e.getError());
         }
     }
@@ -177,16 +232,20 @@ public class SimpleTest {
     @Test
     public void testCreateSrcTx() throws UnsupportedEncodingException {
         try {
+
+            //cNx8ETCTNY3ugUYWfDjZNGPU7tzKpFPwXRGW5jpV7DhKaTb9D1vP
+            //SLSNYr8T1dDFMCjJwYCKp5XAVNjpFNvUPqTo
+            //e91611c773df3254022317796cb96891edc0ddbd
             SendRawTransactionRequest sendRawTransactionRequest = new SendRawTransactionRequest();
             sendRawTransactionRequest.setAllowAbsurdFees(true);
-            String toAddress = "SLSQWxnqf7fZ7ZPYYYE1Q9a7DQvU8NpnMK8o";
-            BigDecimal bigDecimal = new BigDecimal("100");
+            String toAddress = "SLSNYr8T1dDFMCjJwYCKp5XAVNjpFNvUPqTo";
+            BigDecimal bigDecimal = new BigDecimal("100000000");
             // Map<String, String> <=> Map<address, privateKey>
             Map<String, String> map = new HashMap(1);
-            String contractAddress = "1e88227d9f21cd26ee06f0f1473e119bbf392fc0";
+            String contractAddress = "e91611c773df3254022317796cb96891edc0ddbd";
             // 该map只能只能放一个
             map.put("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm","cRAcYoB4RgbpyEkPEaxqs4C4y63b3MMXfw34boDVggfEHP9o1qct");
-            //map.put("SLSRi1eaWgiUBpcFvrnsRyamjPLnGamojXCz","cRjSXKEdjQhD1KBWUrShm5QGYNhE2jfwwBoRiw3iNKnPnGMaUiVc");
+            // map.put("SLSNYr8T1dDFMCjJwYCKp5XAVNjpFNvUPqTo","cNx8ETCTNY3ugUYWfDjZNGPU7tzKpFPwXRGW5jpV7DhKaTb9D1vP");
             //map.put("SLSS9M2SNQB3FywcpRjCcQszpxKKdwPrddmS","cT7Ahj7uKNZv67JftAju3iUZUNUvE3UXxtF7Xq3QamE5UpvGQqXy");
             //map.put("SLSgJKZhg6isMBBUZnjLLEYreFRfuhchunXs", "cRpYDyRsa9n2rYr3RMZ9fo1Du6JdXtbmszVAg7ytmLzJCAAqbuZf");
             try {
@@ -394,6 +453,8 @@ public class SimpleTest {
             System.out.println("request null");
         }
     }
+
+
 
 
     /**测试
