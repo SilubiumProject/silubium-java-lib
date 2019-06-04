@@ -1,14 +1,15 @@
 package com.spark.bc.wallet.api.util;
 
 import com.spark.bc.wallet.api.entity.TransactionCheck;
+import com.spark.bc.wallet.api.entity.slu.UTXO;
 import com.spark.bc.wallet.api.entity.slu.*;
 import com.spark.bc.wallet.api.entity.src20.CallResult;
 import com.spark.bc.wallet.api.entity.src20.Contract;
 import com.spark.bc.wallet.api.entity.src20.SrcBalance;
 import com.spark.bc.wallet.api.service.SilubiumService;
 import org.apache.commons.lang3.StringUtils;
-import org.bitcoinj.core.*;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.*;
 import org.bitcoinj.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class TransactionUtil {
      * @author shenzucai
      * @time 2018.12.05 10:56
      */
-    public static TransactionCheck createTx(final Map<String, String> froms, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal minUtxoAmount,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos) throws Exception {
+    public static TransactionCheck createTx(final Map<String, String> froms, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal minUtxoAmount,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos,final String changeAddress) throws Exception {
         try {
             if (addresses == null || amountList == null || addresses.size() != amountList.size()) {
                 throw new Exception("输出地址个数和金额个数不匹配");
@@ -101,6 +102,9 @@ public class TransactionUtil {
                 throw new Exception("slu可用余额不足");
             }
             UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount,usedUtxos);
+
+            amount = amount.subtract(fee).add(fee.multiply(new BigDecimal(Math.ceil(unspentOutputs.size()/5.0))));
+
             List<com.spark.bc.wallet.api.entity.slu.UTXO> usefulUxtos = new ArrayList<>();
             for (com.spark.bc.wallet.api.entity.slu.UTXO unspentOutput : unspentOutputs) {
                 overFlow = overFlow.add(unspentOutput.getAmount());
@@ -115,8 +119,8 @@ public class TransactionUtil {
 
             BigDecimal delivery = overFlow.subtract(amount);
             if (delivery.doubleValue() != 0.0) {
-                // 找零会默认找给第一个地址
-                transaction.addOutput(Coin.valueOf((long) (delivery.multiply(bitcoin).doubleValue())), ecKeyList.get(0).toAddress(CurrentNetParams.getNetParams()));
+                // 找零
+                transaction.addOutput(Coin.valueOf((long) (delivery.multiply(bitcoin).doubleValue())), Address.fromBase58(CurrentNetParams.getNetParams(), changeAddress));
             }
             for (com.spark.bc.wallet.api.entity.slu.UTXO unspentOutput : usefulUxtos) {
                 for (ECKey deterministicKey : ecKeyList) {
@@ -155,6 +159,132 @@ public class TransactionUtil {
 
     }
 
+
+    /**
+     * 正常构建交易
+     *
+     * @param froms      Map<address,privateKey>
+     * @param addresses
+     * @param amountList
+     * @param feeString
+     * @return true
+     * @author shenzucai
+     * @time 2018.12.05 10:56
+     */
+    public static TransactionCheck createMultiSigTx(final Map<String, String> froms, final Set<String> addresses, final List<BigDecimal> amountList, final String feeString, BigDecimal minUtxoAmount,List<com.spark.bc.wallet.api.entity.slu.UTXO> usedUtxos,final String changeAddress) throws Exception {
+        try {
+            if (addresses == null || amountList == null || addresses.size() != amountList.size()) {
+                throw new Exception("输出地址个数和金额个数不匹配");
+            }
+
+            List<Address> toAddressList = new ArrayList<>();
+            List<Address> fromAddressList = new ArrayList<>();
+            List<ECKey> ecKeyList = new ArrayList<>();
+
+            Transaction transaction = new Transaction(CurrentNetParams.getNetParams());
+            BigDecimal bitcoin = new BigDecimal(100000000);
+
+            StringBuffer fromAddressStr = new StringBuffer();
+            try {
+                for (String address : addresses) {
+                    toAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address));
+                }
+                for (Map.Entry<String,String> address : froms.entrySet()) {
+                    fromAddressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address.getKey()));
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(address.getValue()));
+                    if (StringUtils.isEmpty(fromAddressStr.toString())) {
+                        fromAddressStr.append(address.getKey());
+                    } else {
+                        fromAddressStr.append("," + address.getKey());
+                    }
+                }
+            } catch (AddressFormatException a) {
+                throw new Exception("地址不合法");
+            }
+
+            if (fromAddressList.size() != ecKeyList.size() || fromAddressList.size() == 0 || ecKeyList.size() == 0) {
+                throw new Exception("地址和私钥不匹配");
+            }
+
+            if (toAddressList.size() != amountList.size() || toAddressList.size() == 0 || amountList.size() == 0) {
+                throw new Exception("输出地址和金额个数不匹配");
+            }
+
+            BigDecimal amount = new BigDecimal("0.0");
+            for (BigDecimal amountStr : amountList) {
+                amount = amount.add(amountStr);
+            }
+            BigDecimal fee = new BigDecimal(feeString);
+            // 最大交易手续费为0.5
+            fee = fee.compareTo(new BigDecimal("0.5"))==1?new BigDecimal("0.5"):fee;
+            BigDecimal amountFromOutput = new BigDecimal("0.0");
+            BigDecimal overFlow = new BigDecimal("0.0");
+            for (int i = 0; i < toAddressList.size(); i++) {
+                transaction.addOutput(Coin.valueOf((long) (amountList.get(i).multiply(bitcoin).doubleValue())), toAddressList.get(i));
+            }
+            amount = amount.add(fee);
+
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(),amount,CurrentNetParams.getDefault_confirm()));
+            if(unspentOutputs == null || unspentOutputs.size() == 0){
+                throw new Exception("slu可用余额不足");
+            }
+            UTXOUtils.getValidUTXODESCAmount(unspentOutputs, minUtxoAmount,usedUtxos);
+
+            amount = amount.subtract(fee).add(fee.multiply(new BigDecimal(Math.ceil(unspentOutputs.size()/5.0))));
+
+            List<com.spark.bc.wallet.api.entity.slu.UTXO> usefulUxtos = new ArrayList<>();
+            for (com.spark.bc.wallet.api.entity.slu.UTXO unspentOutput : unspentOutputs) {
+                overFlow = overFlow.add(unspentOutput.getAmount());
+                usefulUxtos.add(unspentOutput);
+                if (overFlow.doubleValue() >= amount.doubleValue()) {
+                    break;
+                }
+            }
+            if (overFlow.doubleValue() < amount.doubleValue()) {
+                throw new Exception("余额不足");
+            }
+
+            BigDecimal delivery = overFlow.subtract(amount);
+            if (delivery.doubleValue() != 0.0) {
+                // 找零会默认找给第一个地址
+                transaction.addOutput(Coin.valueOf((long) (delivery.multiply(bitcoin).doubleValue())), Address.fromBase58(CurrentNetParams.getNetParams(), changeAddress));
+            }
+            for (com.spark.bc.wallet.api.entity.slu.UTXO unspentOutput : usefulUxtos) {
+                for (ECKey deterministicKey : ecKeyList) {
+                    if (deterministicKey.toAddress(CurrentNetParams.getNetParams()).toString().equals(unspentOutput.getAddress())) {
+                        Sha256Hash sha256Hash = Sha256Hash.wrap(Utils.parseAsHexOrBase58(unspentOutput.getTxid()));
+                        TransactionOutPoint outPoint = new TransactionOutPoint(CurrentNetParams.getNetParams(), unspentOutput.getVout(), sha256Hash);
+                        Script script = new Script(Utils.parseAsHexOrBase58(unspentOutput.getScriptPubKey()));
+                        transaction.addSignedInput(outPoint, script, deterministicKey, Transaction.SigHash.ALL, true);
+                        amountFromOutput = amountFromOutput.add(unspentOutput.getAmount());
+                        break;
+                    }
+                }
+                if (amountFromOutput.doubleValue() >= amount.doubleValue()) {
+                    break;
+                }
+            }
+            transaction.getConfidence(new Context(CurrentNetParams.getNetParams())).setSource(TransactionConfidence.Source.SELF);
+            transaction.setPurpose(Transaction.Purpose.USER_PAYMENT);
+            byte[] bytes = transaction.unsafeBitcoinSerialize();
+            int txSizeInkB = (int) Math.ceil(bytes.length / 1024.);
+            BigDecimal minimumFee = (FeeUtil.getEstimateFeePerKb(amount.doubleValue()).multiply(new BigDecimal(txSizeInkB)));
+            logger.info("推荐最小手续费为 {}",minimumFee);
+            // 最大交易手续费为0.5
+            // minimumFee = minimumFee.compareTo(new BigDecimal("0.5"))==1?new BigDecimal("0.5"):minimumFee;
+            /*if (minimumFee.doubleValue() > fee.doubleValue()) {
+                throw new Exception("手续费不足");
+            }*/
+
+            TransactionCheck transactionCheck = new TransactionCheck();
+            transactionCheck.setTransaction(transaction);
+            transactionCheck.setTransactionBytes(Hex.toHexString(bytes));
+            return transactionCheck;
+        } catch (Exception e) {
+            throw e;
+        }
+
+    }
 
     /**
      * 正常构建token交易
@@ -232,7 +362,7 @@ public class TransactionUtil {
                 hexData = hexData.substring(2);
             }
 
-            return ContractUtils.createTransactionHash(hexData, contractAddress, unspentOutputs, ecKeyList, 500000, 10, feeString, sluAmount);
+            return ContractUtils.createTransactionHash(hexData, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasLimit(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }
@@ -315,7 +445,129 @@ public class TransactionUtil {
                 hexData = hexData.substring(2);
             }
 
-            return ContractUtils.createTransactionHash(hexData, contractAddress, unspentOutputs, ecKeyList, 500000, 10, feeString, sluAmount);
+            return ContractUtils.createTransactionHash(hexData, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasLimit(), feeString, sluAmount);
+        } catch (Exception e) {
+            throw e;
+        }
+
+    }
+
+
+    /**
+     * @param from
+     * @param contractAddress
+     * @param addresses
+     * @param feeString
+     * @param senGasList
+     * @param minUtxoAmount
+     * @param usedUtxos
+     * @return true
+     * @author shenzucai
+     * @time 2019.05.14 11:05
+     */
+    public static TransactionCheck createNewTx(final Map<String, String> from, String contractAddress, List<SluTransferResult> addresses, final String feeString, List<SendGasResult> senGasList, BigDecimal minUtxoAmount, List<UTXO> usedUtxos) throws Exception {
+        try {
+            if (addresses == null || from == null || feeString == null || from.size() < 1 || senGasList == null || (addresses.size() < 1 && senGasList.size() < 1)) {
+                throw new Exception("参数不能为空");
+            }
+
+            if (StringUtils.isEmpty(contractAddress)) {
+                if (addresses != null && addresses.size() > 0) {
+                    throw new Exception("token转账时必须指定合约地址");
+                }
+            }
+
+            if (from.size() > 1) {
+                throw new Exception("from 只能存在一个地址和其对应的私钥");
+            }
+
+            BigDecimal sluAmount = BigDecimal.ZERO;
+            for (SendGasResult transferResult : senGasList) {
+                sluAmount = sluAmount.add(transferResult.getAmount());
+            }
+
+            BigDecimal tokenAmount = BigDecimal.ZERO;
+            String fromaddress = null;
+            List<ECKey> ecKeyList = new ArrayList<>();
+            List<Address> addressList = new ArrayList<>();
+            StringBuffer fromAddressStr = new StringBuffer();
+            try {
+                for (SluTransferResult address : addresses) {
+                    tokenAmount = tokenAmount.add(address.getAmount());
+                    if (address.getAddress().startsWith("SL")) {
+                        addressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address.getAddress()));
+                    } else {
+                        if (address.getAddress().length() == 40) {
+                            addressList.add(Address.fromBase58(CurrentNetParams.getNetParams(), address.getAddress()));
+                        }
+                    }
+                }
+                for (Map.Entry<String, String> fromAddress : from.entrySet()) {
+                    fromaddress = fromAddress.getKey();
+                    Address.fromBase58(CurrentNetParams.getNetParams(), fromAddress.getKey());
+                    ecKeyList.add(ECKeyUtils.fromPrivateKey(fromAddress.getValue()));
+                    if (StringUtils.isEmpty(fromAddressStr.toString())) {
+                        fromAddressStr.append(fromAddress.getKey());
+                    } else {
+                        fromAddressStr.append("," + fromAddress.getKey());
+                    }
+                }
+            } catch (AddressFormatException a) {
+                throw new Exception("地址不合法");
+            }
+
+
+            if (StringUtils.isNotEmpty(contractAddress)) {
+                SrcBalance balances = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrSrcBalance(contractAddress, fromaddress));
+                if (balances == null || balances.getBalances() == null || balances.getBalances().size() < 1) {
+                    throw new Exception("TOKEN余额不足");
+                }
+                if (tokenAmount.compareTo(balances.getBalances().get(0).getBalance()) == 1) {
+                    throw new Exception("TOKEN余额不足");
+                }
+            }
+
+            BigDecimal allAmount = new BigDecimal(feeString).multiply(new BigDecimal(Math.ceil((addressList.size() + senGasList.size()) / 5.0))).setScale(8, BigDecimal.ROUND_DOWN)
+
+                    .add(new BigDecimal("0.05").multiply(new BigDecimal(addressList.size())).setScale(8, BigDecimal.ROUND_DOWN))
+
+                    .add(sluAmount);
+            List<UTXO> unspentOutputs = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getAddrUTXOs(fromAddressStr.toString(), allAmount, CurrentNetParams.getDefault_confirm()));
+            if (unspentOutputs == null || unspentOutputs.size() == 0) {
+                throw new Exception("SLU可用余额不足");
+            }
+            UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount, usedUtxos);
+
+            List<org.web3j.abi.datatypes.Type> inputParameters = null;
+            List<String> hexDatas = new ArrayList<>();
+
+            if (StringUtils.isNotEmpty(contractAddress)) {
+
+                Contract contract = Generator.executeSync(Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl()).getContract(contractAddress));
+                for (SluTransferResult address : addresses) {
+                    if (address.getAmount().compareTo(BigDecimal.ZERO) != 1) {
+                        continue;
+                    }
+                    inputParameters = new ArrayList<>();
+                    inputParameters.add(new org.web3j.abi.datatypes.Address(AddressUtil.SLUtoHash160(address.getAddress())));
+
+                    inputParameters.add(new Uint256(address.getAmount().multiply(
+                            new BigDecimal(
+                                    Math.pow(10, new Double(contract.getDecimals()).doubleValue()
+                                    )
+                            )
+                    ).toBigInteger()));
+                    Function fn = new Function("transfer", inputParameters, Collections.singletonList(new TypeReference<Uint256>() {
+                    }));
+                    String hexData = FunctionEncoder.encode(fn);
+                    if (hexData.startsWith("0x")) {
+                        hexData = hexData.substring(2);
+                    }
+                    hexDatas.add(hexData);
+                }
+            }
+
+            return ContractUtils.createTransactionHash(hexDatas, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasLimit(), feeString, sluAmount, senGasList, addressList);
         } catch (Exception e) {
             throw e;
         }
@@ -367,7 +619,7 @@ public class TransactionUtil {
                 throw new Exception("slu可用余额不足");
             }
             UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
-            return ContractUtils.createTransactionHash(data, contractAddress, unspentOutputs, ecKeyList, 500000, 10, feeString, sluAmount);
+            return ContractUtils.createTransactionHash(data, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasLimit(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }
@@ -482,7 +734,7 @@ public class TransactionUtil {
                 hexData = hexData.substring(2);
             }
 
-            return ContractUtils.createTransactionHash(hexData, toContractAddress, unspentOutputs, ecKeyList, 6000000, 10, feeString, sluAmount);
+            return ContractUtils.createTransactionHash(hexData, toContractAddress, unspentOutputs, ecKeyList, 6000000, CurrentNetParams.getGasLimit(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }
@@ -597,7 +849,7 @@ public class TransactionUtil {
                 hexData = hexData.substring(2);
             }
 
-            return ContractUtils.createTransactionHash(hexData, toContractAddress, unspentOutputs, ecKeyList, 6000000, 10, feeString, sluAmount);
+            return ContractUtils.createTransactionHash(hexData, toContractAddress, unspentOutputs, ecKeyList, 6000000, CurrentNetParams.getGasLimit(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }

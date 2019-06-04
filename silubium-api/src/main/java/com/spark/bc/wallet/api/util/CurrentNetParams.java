@@ -14,6 +14,10 @@ public class CurrentNetParams {
 
     private static Integer default_confirm = 6;
 
+    private static Integer gasLimit = 800000;
+
+    private static Integer gasPrice = 10;
+
     public static NetworkParameters getNetParams(){
         return USE_MAIN_NET? SilubiumMainNetParams.get() : SilubiumTestNetParams.get();
     }
@@ -40,5 +44,21 @@ public class CurrentNetParams {
 
     public static void setDefault_confirm(Integer default_confirm) {
         CurrentNetParams.default_confirm = default_confirm;
+    }
+
+    public static Integer getGasLimit() {
+        return gasLimit;
+    }
+
+    public static void setGasLimit(Integer gasLimit) {
+        CurrentNetParams.gasLimit = gasLimit;
+    }
+
+    public static Integer getGasPrice() {
+        return gasPrice;
+    }
+
+    public static void setGasPrice(Integer gasPrice) {
+        CurrentNetParams.gasPrice = gasPrice;
     }
 }
