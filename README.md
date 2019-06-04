@@ -1,5 +1,82 @@
 # silubium-java-lib
 
+
+## 重大更新 start
+
+    static {
+            // 加载BC加密驱动
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+            // 交易确认数
+            CurrentNetParams.setDefault_confirm(0);
+            // 是否主链，默认true
+            CurrentNetParams.setUseMainNet(false);
+            // 新增燃料价格
+            CurrentNetParams.setGasPrice(10);
+            // 新增燃料限制
+            CurrentNetParams.setGasLimit(800000);
+            // 接口主机地址和端口
+            CurrentNetParams.setBaseUrl("http://172.16.0.90:3001");
+
+        }
+
+    /**
+        * 
+        * 可同时创建燃料交易和代币交易
+        * @param
+        * @return true
+        * @author daring5920
+        */
+        @Test
+        public void testCreateNewSrcTx() throws UnsupportedEncodingException {
+            try {
+                SendRawTransactionRequest sendRawTransactionRequest = new SendRawTransactionRequest();
+                sendRawTransactionRequest.setAllowAbsurdFees(true);
+
+                //接收地址
+                List<SluTransferResult> addresses = new ArrayList<>();
+
+                // 赠送手续费
+                List<SendGasResult> sendGasResults = new ArrayList<>();
+                sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "SLSSFpE5Gbbg84v2FqFkZAasrmqfNNNZqvwr"),new BigDecimal("10000")));
+                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+
+                BigDecimal bigDecimal = new BigDecimal("10000");
+                addresses.add(new SluTransferResult("SLSSFpE5Gbbg84v2FqFkZAasrmqfNNNZqvwr",bigDecimal));
+                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+                Map<String, String> map = new HashMap(1);
+                // 合约地址（代币交易时请务必填写，只有燃料交易时可不填）
+                String contractAddress = "1151b5d84e3d7e14c6115b2b6eac8d66d816672f";
+                // 该map只能只能放一个  发送地址和私钥
+                map.put("SLSjc1JSj9oqYkq7fdUFZaGeG8uisYVRihbm","cRAcYoB4RgbpyEkPEaxqs4C4y63b3MMXfw34boDVggfEHP9o1qct");
+
+                try {
+                    // 构建交易
+                    TransactionCheck transactionCheck = TransactionUtil.createNewTx(map, contractAddress, addresses, new BigDecimal("0.01").toPlainString(), sendGasResults, BigDecimal.ZERO, null);
+                    sendRawTransactionRequest.setRawtx(transactionCheck.getTransactionBytes());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                SilubiumService rpcService = Generator.createService(SilubiumService.class, CurrentNetParams.getBaseUrl());
+                // 广播交易 返回交易hash
+                SendResult sendResult = Generator.executeSync(rpcService.sendRawTransaction(sendRawTransactionRequest));
+                System.out.println(sendResult.getTxid());
+            } catch (ApiException e) {
+                System.out.println(e.getError());
+            }
+        }
+
+## 重大更新 end
+
+
+
 超级节点使用说明
 ## 交易所使用说明
 
