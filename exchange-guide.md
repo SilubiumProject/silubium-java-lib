@@ -44,6 +44,36 @@ maven引入
             <artifactId>silubium-api</artifactId>
             <version>1.1.0</version>
         </dependency>
+        
+        // 如果出现okhttp包冲突，可使用以下方式
+        <dependency>
+            <groupId>com.deaking.www.wallet</groupId>
+            <artifactId>silubium-api</artifactId>
+            <version>1.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>logging-interceptor</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--用于解决包冲突的问题-->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.12.1</version>
+
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>logging-interceptor</artifactId>
+            <version>3.12.1</version>
+        </dependency>
 ```
 ```java
 // 启动参数初始化设置，建议在启动时加入该静态启动代码
