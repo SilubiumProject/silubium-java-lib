@@ -19,17 +19,17 @@ SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安�
 
 **java版的Silubium离线工具包，具有以下特点：**
 1. **[离线生成Silubium地址](#离线生成Silubium地址)（可脱离网络使用）**
-2. **离线构造Silubium链上标准的SLU交易 token交易（连接网络下使用）**
-3. **校验地址的合法性（可脱离网络使用）**
-4. **获取地址SLU余额（连接网络下使用）**
-5. **获取地址TOKEN余额（连接网络下使用）**
-6. **获取地址UTXO（连接网络下使用）**
-7. **获取指定高度的交易信息（连接网络下使用）**
-8. **获取交易明细（连接网络下使用）**
-9. **广播交易（连接网络下使用）**
-10. **获取TOKEN信息（连接网络下使用）**
-11. **CONTRACT**
-12. **CryptoCurrency Exchange Guide**
+2. **[离线构造Silubium链上标准的SLU交易 token交易](#离线构造Silubium链上标准的SLU交易token交易)（连接网络下使用）**
+3. **[校验地址的合法性](#校验地址的合法性)（可脱离网络使用）**
+4. **[获取地址SLU余额](#获取地址SLU余额)（连接网络下使用）**
+5. **[获取地址TOKEN余额](#获取地址TOKEN余额)（连接网络下使用）**
+6. **[获取地址UTXO](#获取地址UTXO)（连接网络下使用）**
+7. **[获取指定高度的交易信息](#获取指定高度的交易信息)（连接网络下使用）**
+8. **[获取交易明细](#获取交易明细)（连接网络下使用）**
+9. **[广播交易](#广播交易)（连接网络下使用）**
+10. **[获取TOKEN信息](#获取TOKEN信息)（连接网络下使用）**
+11. **[CONTRACT](#CONTRACT)（连接网络下使用）**
+12. **[CryptoCurrency Exchange Guide](#CryptoCurrencyExchangeGuide)**
 
 [SilkTrader](http://st.bi)
 - 需要连接网络使用的功能，建议在项目启动是进行连接参数的实例化
@@ -43,6 +43,36 @@ maven引入
             <groupId>com.deaking.www.wallet</groupId>
             <artifactId>silubium-api</artifactId>
             <version>1.1.0</version>
+        </dependency>
+        
+        // 如果出现okhttp包冲突，可使用以下方式
+        <dependency>
+            <groupId>com.deaking.www.wallet</groupId>
+            <artifactId>silubium-api</artifactId>
+            <version>1.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>logging-interceptor</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--用于解决包冲突的问题-->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.12.1</version>
+
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>logging-interceptor</artifactId>
+            <version>3.12.1</version>
         </dependency>
 ```
 ```java
@@ -116,7 +146,7 @@ static {
           }
 ```
 
-#### 2. **离线构造Silubium链上标准的SLU交易 token交易**
+#### 离线构造Silubium链上标准的SLU交易token交易
 
 [查看Silubium TOKEN LIST](https://silkchain.silubium.org/token/tokenlist.html)
 
@@ -183,7 +213,7 @@ static {
     }
 ```
 
-#### 3. **校验地址的合法性**
+#### 校验地址的合法性
 
 ```java
 //使用该工具类进行地址合法性校验 com.spark.bc.wallet.api.util.AddressUtil
@@ -201,7 +231,7 @@ static {
     //即上述实例化地址时是否异常，无异常则为合法地址，否则地址不合法
 ```
 
-#### 4. **获取地址SLU余额**
+#### 获取地址SLU余额
 
 ```java
     /**
@@ -222,7 +252,7 @@ static {
     }
 ```
 
-#### 5. **获取地址TOKEN余额**
+#### 获取地址TOKEN余额
 
 ```java
 /**
@@ -242,7 +272,7 @@ static {
     }
 ```
 
-#### 6. **获取地址UTXO**
+#### 获取地址UTXO
 
 ```java
 /**
@@ -266,7 +296,7 @@ static {
     }
 ```
 
-#### 7. **获取指定高度的交易信息**
+#### 获取指定高度的交易信息
 
 ```java
 /**
@@ -289,7 +319,7 @@ static {
     }
 ```
 
-#### 8. **获取交易明细**
+#### 获取交易明细
 
 ```java
 /**
@@ -308,7 +338,7 @@ static {
     }
 ```
 
-#### 9. **广播交易**
+#### 广播交易
 
 ```java
  //广播已经构造好的交易，需要配合构造交易的函数使用
@@ -324,7 +354,7 @@ static {
          System.out.println(sendResult.getTxid());
 ```
 
-#### 10. **获取TOKEN信息**
+#### 获取TOKEN信息
 
 ```java
 /**测试获取合约信息
@@ -341,7 +371,7 @@ static {
     }
 ```
 
-#### 11. **CONTRACT**
+#### CONTRACT
 
 ```java
     /**测试获取合约方法调用 模拟调用合约的allowance方法，其他合约方法相同 （不消耗燃料的方法），使用原理同ETH ERC20 TOKEN
@@ -441,7 +471,7 @@ static {
 ```
 
 
-#### 12. **CryptoCurrency Exchange Guide**
+#### CryptoCurrencyExchangeGuide
 
 - 生成SLU地址，建议批量使用1. 离线生成Silubium地址 生成地址，或者需要时再生成，请遵循[bip44](https://github.com/satoshilabs/slips/blob/master/slip-0044.md)协议
 将生成的地址，私钥（请自行加密存储），公钥（请自行加密存储），bip44地址路径等关键信息进行持久化
