@@ -19,7 +19,7 @@ SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安�
 
 **java版的Silubium离线工具包，具有以下特点：**
 1. **[离线生成Silubium地址](#离线生成Silubium地址)（可脱离网络使用）**
-2. **[离线构造Silubium链上标准的SLU交易 token交易](#离线构造Silubium链上标准的SLU交易 token交易)（连接网络下使用）**
+2. **[离线构造Silubium链上标准的SLU交易 token交易](#离线构造Silubium链上标准的SLU交易token交易)（连接网络下使用）**
 3. **[校验地址的合法性](#校验地址的合法性)（可脱离网络使用）**
 4. **[获取地址SLU余额](#获取地址SLU余额)（连接网络下使用）**
 5. **[获取地址TOKEN余额](#获取地址TOKEN余额)（连接网络下使用）**
@@ -29,7 +29,7 @@ SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安�
 9. **[广播交易](#广播交易)（连接网络下使用）**
 10. **[获取TOKEN信息](#获取TOKEN信息)（连接网络下使用）**
 11. **[CONTRACT](#CONTRACT)**
-12. **[CryptoCurrency Exchange Guide](#CryptoCurrency Exchange Guide)**
+12. **[CryptoCurrency Exchange Guide](#CryptoCurrencyExchangeGuide)**
 
 [SilkTrader](http://st.bi)
 - 需要连接网络使用的功能，建议在项目启动是进行连接参数的实例化
@@ -146,7 +146,7 @@ static {
           }
 ```
 
-#### 离线构造Silubium链上标准的SLU交易 token交易
+#### 离线构造Silubium链上标准的SLU交易token交易
 
 [查看Silubium TOKEN LIST](https://silkchain.silubium.org/token/tokenlist.html)
 
@@ -471,7 +471,7 @@ static {
 ```
 
 
-#### CryptoCurrency Exchange Guide
+#### CryptoCurrencyExchangeGuide
 
 - 生成SLU地址，建议批量使用1. 离线生成Silubium地址 生成地址，或者需要时再生成，请遵循[bip44](https://github.com/satoshilabs/slips/blob/master/slip-0044.md)协议
 将生成的地址，私钥（请自行加密存储），公钥（请自行加密存储），bip44地址路径等关键信息进行持久化
