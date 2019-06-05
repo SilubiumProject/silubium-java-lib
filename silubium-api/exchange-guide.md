@@ -31,6 +31,50 @@ SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安�
 11. **[CONTRACT](#CONTRACT)（连接网络下使用）**
 12. **[CryptoCurrency Exchange Guide](#CryptoCurrencyExchangeGuide)**
 
+## Silubium工具包均基于一下http请求,如果非java语言，可使用http进行实现
+```
+@GET("/silubium-api/addrs/balance/{addrs}")
+    Call<List<Balance>> getAddrBalance(@Path("addrs") String addrs);
+
+    @GET("/silubium-api/src/{contractAddress}/balance/{addrs}")
+    Call<SrcBalance> getAddrSrcBalance(@Path("contractAddress") String contractAddress,@Path("addrs") String addrs);
+
+    @GET("/silubium-api/addrs/{addrs}/utxo")
+    Call<List<UTXO>> getAddrUTXOs(@Path("addrs") String addrs,@Query("amount") BigDecimal amount,@Query("confirmations") Integer confirmations);
+
+    @GET("/silubium-api/txs")
+    Call<com.spark.bc.wallet.api.entity.slu.Transaction> listTransaction(@Query("block") String block,@Query("pageNum") Integer pageNum,@Query("pageLength") Integer pageLength);
+
+    @GET("/silubium-api/tx/{txid}")
+    Call<Transaction> getTransaction(@Path("txid") String txid);
+
+    @POST("/silubium-api/tx/send")
+    Call<SendResult> sendRawTransaction(@Body SendRawTransactionRequest sendRawTransactionRequest);
+
+    @GET("/silubium-api/src20/{contractAddress}")
+    Call<Contract> getContract(@Path("contractAddress") String contractAddress);
+
+
+    /**
+     *
+     20:20:11
+     ￼
+     callcontract "address" "data" ( address )
+
+     Argument:
+     1. "address"          (string, required) The account address
+     2. "data"             (string, required) The data hex string
+     3. address              (string, optional) The sender address hex string
+     4. gasLimit             (string, optional) The gas limit for executing the contract
+
+     * @param contractAddress
+     * @param contractHash
+     * @param from
+     * @return
+     */
+    @GET("/silubium-api/contracts/{contractAddress}/hash/{contractHash}/call")
+    Call<CallResult> contractCall(@Path("contractAddress") String contractAddress, @Path("contractHash") String contractHash, @Query("from") String from);
+```
 [SilkTrader](http://st.bi)
 - 需要连接网络使用的功能，建议在项目启动是进行连接参数的实例化
 - 如有需要动态切换参数，使用CurrentNetParams设置即可
