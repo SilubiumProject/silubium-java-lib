@@ -31,7 +31,7 @@ SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安�
 11. **[CONTRACT](#CONTRACT)（连接网络下使用）**
 12. **[CryptoCurrency Exchange Guide](#CryptoCurrencyExchangeGuide)**
 
-## Silubium工具包均基于已下http请求,如果非java语言，可使用http进行实现
+## Silubium工具包均基于以下http请求,如果非java语言，可使用http进行实现
 ```
 @GET("/silubium-api/addrs/balance/{addrs}")
     Call<List<Balance>> getAddrBalance(@Path("addrs") String addrs);
