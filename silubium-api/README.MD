@@ -15,13 +15,13 @@
             // 交易确认数
             CurrentNetParams.setDefault_confirm(0);
             // 是否主链，默认true
-            CurrentNetParams.setUseMainNet(false);
+            CurrentNetParams.setUseMainNet(true);
             // 新增燃料价格
             CurrentNetParams.setGasPrice(10);
             // 新增燃料限制
             CurrentNetParams.setGasLimit(800000);
             // 接口主机地址和端口
-            CurrentNetParams.setBaseUrl("http://172.16.0.90:3001");
+            CurrentNetParams.setBaseUrl("https://sluapi.silubium.org/");
 
         }
 
@@ -44,19 +44,11 @@
                 // 赠送手续费
                 List<SendGasResult> sendGasResults = new ArrayList<>();
                 sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "SLSSFpE5Gbbg84v2FqFkZAasrmqfNNNZqvwr"),new BigDecimal("10000")));
-                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
-                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
-                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
-                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
-                // sendGasResults.add(new SendGasResult(Address.fromBase58(CurrentNetParams.getNetParams(), "BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA"),new BigDecimal("0.6")));
+               
 
                 BigDecimal bigDecimal = new BigDecimal("10000");
                 addresses.add(new SluTransferResult("SLSSFpE5Gbbg84v2FqFkZAasrmqfNNNZqvwr",bigDecimal));
-                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
-                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
-                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
-                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
-                // addresses.add(new BccTransferResult("BCp8PoAB1b21kGJoJpYN2kiKvm9nCcLGjqdA",bigDecimal));
+               
                 Map<String, String> map = new HashMap(1);
                 // 合约地址（代币交易时请务必填写，只有燃料交易时可不填）
                 String contractAddress = "1151b5d84e3d7e14c6115b2b6eac8d66d816672f";
