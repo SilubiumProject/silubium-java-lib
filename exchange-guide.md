@@ -28,7 +28,7 @@ SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安�
 8. **[获取交易明细](#获取交易明细)（连接网络下使用）**
 9. **[广播交易](#广播交易)（连接网络下使用）**
 10. **[获取TOKEN信息](#获取TOKEN信息)（连接网络下使用）**
-11. **[CONTRACT](#CONTRACT)**
+11. **[CONTRACT](#CONTRACT)（连接网络下使用）**
 12. **[CryptoCurrency Exchange Guide](#CryptoCurrencyExchangeGuide)**
 
 [SilkTrader](http://st.bi)
