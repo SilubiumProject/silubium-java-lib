@@ -611,7 +611,7 @@ for (ReceiptBean tokenTransaction : receiptBeans) {
                                   continue;
                                 }
                                 // 是的话，解析交易信息
-                                // 转账金额
+                                // 转账金额 coinToken.getCoinDecimals()为对应币种精度一般为8
                                 com.spark.bc.wallet.api.util.AmountFormate.amount(logBean.getData(), String.valueOf(coinToken.getCoinDecimals())).doubleValue()
                                 // 发送地址
                                 String sendAddress = logBean.getTopics().get(1);
