@@ -362,7 +362,7 @@ public class TransactionUtil {
                 hexData = hexData.substring(2);
             }
 
-            return ContractUtils.createTransactionHash(hexData, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasLimit(), feeString, sluAmount);
+            return ContractUtils.createTransactionHash(hexData, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasPrice(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }
@@ -445,7 +445,7 @@ public class TransactionUtil {
                 hexData = hexData.substring(2);
             }
 
-            return ContractUtils.createTransactionHash(hexData, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasLimit(), feeString, sluAmount);
+            return ContractUtils.createTransactionHash(hexData, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasPrice(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }
@@ -567,7 +567,7 @@ public class TransactionUtil {
                 }
             }
 
-            return ContractUtils.createTransactionHash(hexDatas, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasLimit(), feeString, sluAmount, senGasList, addressList);
+            return ContractUtils.createTransactionHash(hexDatas, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasPrice(), feeString, sluAmount, senGasList, addressList);
         } catch (Exception e) {
             throw e;
         }
@@ -619,7 +619,7 @@ public class TransactionUtil {
                 throw new Exception("slu可用余额不足");
             }
             UTXOUtils.getValidUTXO(unspentOutputs, minUtxoAmount,usedUtxos);
-            return ContractUtils.createTransactionHash(data, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasLimit(), feeString, sluAmount);
+            return ContractUtils.createTransactionHash(data, contractAddress, unspentOutputs, ecKeyList, CurrentNetParams.getGasLimit(), CurrentNetParams.getGasPrice(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }
@@ -734,7 +734,7 @@ public class TransactionUtil {
                 hexData = hexData.substring(2);
             }
 
-            return ContractUtils.createTransactionHash(hexData, toContractAddress, unspentOutputs, ecKeyList, 6000000, CurrentNetParams.getGasLimit(), feeString, sluAmount);
+            return ContractUtils.createTransactionHash(hexData, toContractAddress, unspentOutputs, ecKeyList, 6000000, CurrentNetParams.getGasPrice(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }
@@ -849,7 +849,7 @@ public class TransactionUtil {
                 hexData = hexData.substring(2);
             }
 
-            return ContractUtils.createTransactionHash(hexData, toContractAddress, unspentOutputs, ecKeyList, 6000000, CurrentNetParams.getGasLimit(), feeString, sluAmount);
+            return ContractUtils.createTransactionHash(hexData, toContractAddress, unspentOutputs, ecKeyList, 6000000, CurrentNetParams.getGasPrice(), feeString, sluAmount);
         } catch (Exception e) {
             throw e;
         }
