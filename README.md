@@ -83,7 +83,7 @@
                 // 网络模式
                 CurrentNetParams.setUseMainNet(true);
                 // 正式链 超级节点地址
-                CurrentNetParams.setBaseUrl("https://sluapi2.silubium.org");
+                CurrentNetParams.setBaseUrl("https://sluapi.silubium.org");
             }
         
     如果项目启动是报加密相关的错误，请下载jdk8专用的无限制策略文件[jce-policy](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)，然后到$JAVA_HOME\jre\lib\security目录下替换对应的jar包
